@@ -1,6 +1,7 @@
 package ai.infrrd.idc.receipt.fieldextractor.merchantname.service;
 
 import ai.infrrd.idc.commons.entities.FieldExtractionRequest;
+import ai.infrrd.idc.receipt.fieldextractor.merchantname.filter.implementation.RegexExtractorCandidateConfidenceBoostingFilter;
 import ai.infrrd.idc.receipt.fieldextractor.merchantname.preprocessor.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

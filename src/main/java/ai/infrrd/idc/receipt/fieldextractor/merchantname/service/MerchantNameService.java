@@ -78,18 +78,16 @@ public class MerchantNameService implements InitializingBean {
 
         List<ExtractedValue> filteredValues = filterService.filterProcess(listOfValues,fieldExtractionRequest);
 
-
-
-        for (ExtractedValue extractedValue:filteredValues){
-            FieldExtractionResponse fieldExtractionResponse = new FieldExtractionResponse();
-            fieldExtractionResponse.setValue(extractedValue.getValue());
-            fieldExtractionResponse.setOperation(extractedValue.getOperation());
-            fieldExtractionResponse.setConfidence(extractedValue.getConfidence());
-            if (!fieldExtractionResponse.getValue().toString().isEmpty()){
-                fieldExtractionResponse.setSuccess(true);
-            }
-            responses.add(fieldExtractionResponse);
+       FieldExtractionResponse fieldExtractionResponse = new FieldExtractionResponse();
+        if (filteredValues!=null && filteredValues.size()>0){
+            fieldExtractionResponse.setValue(filteredValues.get(0).getValue());
+            fieldExtractionResponse.setConfidence(filteredValues.get(0).getConfidence());
+            fieldExtractionResponse.setOperation(filteredValues.get(0).getOperation());
+            fieldExtractionResponse.setMatchedVicinity(filteredValues.get(0).getMatchedVicinity());
+            fieldExtractionResponse.setSuccess(true);
         }
+
+        responses.add(fieldExtractionResponse);
         listOfResponses.add(responses);
         return listOfResponses;
     }

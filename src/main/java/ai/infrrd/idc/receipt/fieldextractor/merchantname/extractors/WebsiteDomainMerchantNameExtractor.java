@@ -47,7 +47,7 @@ public class WebsiteDomainMerchantNameExtractor implements CandidateValueExtract
     {
         List<ExtractedValue> response = new ArrayList<>();
         List<String> reOrderedText = merchantNameExtractionUtil.reorder( text );
-        List<String> regexList = configService.getRegexList( MerchantConstants.MERCHANT_NAME_WEBSITE, config);
+        List<String> regexList = configService.getRegexList( MerchantConstants.MERCHANT_NAME_WEBSITE, config,null);
         String superDomains = (String) configService.getExtractionConfiguration( MerchantConstants.MERCHANT_NAME_WEBSITE_DOMAINS,config );
         List<String> secondLevelDomains = configService.getValueList( MerchantConstants.MERCHANT_NAME_WEBSITE_SECOND_LEVEL_DOMAINS,config );
         superDomains = superDomains + "|" + superDomains.toUpperCase();

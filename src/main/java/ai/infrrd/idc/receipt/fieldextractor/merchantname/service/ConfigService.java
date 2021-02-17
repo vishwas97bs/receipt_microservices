@@ -25,16 +25,16 @@ public class ConfigService {
 
 
 
-    public List<String> getRegexList(String fieldName , Map<String,Object> config)
+    public List<String> getRegexList(String fieldName , Map<String,Object> config,String locale)
     {
-        return getAllValueList( fieldName, MerchantConstants.EXTRACT_REGEX_EXTENSION,config );
+        return getAllValueList( fieldName, MerchantConstants.EXTRACT_REGEX_EXTENSION,config,locale );
     }
 
-    @SuppressWarnings ("unchecked") public List<String> getAllValueList( String key, String extension , Map<String,Object> config)
+    @SuppressWarnings ("unchecked") public List<String> getAllValueList( String key, String extension , Map<String,Object> config,String locale)
     {
         List<String> response = new ArrayList<>();
 
-        List<String> keySet = getKeys( key, extension ,new HashMap<>());
+        List<String> keySet = getKeys( key, extension ,new HashMap<>(),locale);
 
         for ( String prop : keySet ) {
             List<String> value = (List<String>) getExtractionConfiguration( prop,config );
@@ -44,17 +44,17 @@ public class ConfigService {
         return response;
     }
 
-    String locale;
 
-    private List<String> getKeys(String key, String extension, Map<String ,Object> configuration )
+
+    private List<String> getKeys(String key, String extension, Map<String ,Object> configuration,String locale )
     {
         List<String> response = new ArrayList<>();
-        if ( this.locale != null ) {
-            if ( this.locale.contains( "_" ) ) {
-                String value = this.locale + "_" + key + extension;
+        if ( locale != null ) {
+            if ( locale.contains( "_" ) ) {
+                String value = locale + "_" + key + extension;
                 response.add( value );
             } else {
-                String valuePattern = this.locale + ".{0,9}_" + key + extension;
+                String valuePattern = locale + ".{0,9}_" + key + extension;
                 for ( String ky : configuration.keySet() ) {
                     if ( ky.matches( valuePattern ) ) {
                         response.add( ky );

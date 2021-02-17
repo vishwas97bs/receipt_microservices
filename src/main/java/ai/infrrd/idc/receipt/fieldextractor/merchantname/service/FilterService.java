@@ -26,8 +26,13 @@ public class FilterService {
     @Autowired
     private PunctuationsInMerchantNameFilter punctuationsInMerchantNameFilter;
 
+    @Autowired
+    private
+    RegexExtractorCandidateConfidenceBoostingFilter regexExtractorCandidateConfidenceBoostingFilter;
+
     public  List<ExtractedValue> filterProcess(List<ExtractedValue> values, FieldExtractionRequest fieldExtractionRequest){
-        List<ExtractedValue> filteredValue = removeJunkValues.filter(values,fieldExtractionRequest);
+        List<ExtractedValue> filteredValue = regexExtractorCandidateConfidenceBoostingFilter.filter(values,fieldExtractionRequest);
+        filteredValue = removeJunkValues.filter(values,fieldExtractionRequest);
         filteredValue = confidenceValueSortFilter.filter(filteredValue,fieldExtractionRequest);
         filteredValue = customerKnownMerchantFilter.filter(filteredValue,fieldExtractionRequest);
         filteredValue = merchantNameFinalizerFilter.filter(filteredValue,fieldExtractionRequest);

@@ -43,8 +43,8 @@ public class MerchantNamePrefixNSuffixBasedExtractor
 
         List<String> tagLines = getTagLines( feRequest,config,locale );
         List<String> suffixLines = getSuffixLines( feRequest ,config,locale);
-        List<String> tagLinesRegexList = configService.getAllValueList( "merchant_name_tag_lines", "_extract_regex" ,config);
-        List<String> suffixRegexList = configService.getAllValueList( "merchant_name_suffix", "_extract_regex",config );
+        List<String> tagLinesRegexList = configService.getAllValueList( "merchant_name_tag_lines", "_extract_regex" ,config,locale);
+        List<String> suffixRegexList = configService.getAllValueList( "merchant_name_suffix", "_extract_regex",config,locale );
 
         double baseConfidence = ConfidenceValueCollection.TAGLINE_BASED_MERCHANT_EXTRACTOR;
         List<ExtractedValue> response = new ArrayList<>();
