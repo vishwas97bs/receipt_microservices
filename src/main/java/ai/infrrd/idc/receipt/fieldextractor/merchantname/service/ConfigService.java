@@ -80,8 +80,9 @@ public class ConfigService {
     public Object getExtractionConfiguration( String key,Map<String ,Object> configuration )
     {
         Object value = null;
-        if ( configuration.containsKey( key ) ) {
-            value = configuration.get( key );
+        Map<String,Object> map = (Map<String, Object>) configuration.get("configuration");
+        if ( map.containsKey(key)){
+            value = map.get(key);
         }
         return value;
     }

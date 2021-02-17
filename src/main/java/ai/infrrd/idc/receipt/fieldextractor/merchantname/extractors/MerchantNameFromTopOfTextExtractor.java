@@ -45,14 +45,6 @@ public class MerchantNameFromTopOfTextExtractor implements CandidateValueExtract
         }
     }
 
-//    public static  void initializeSpellcheck(String spellCheckUrl){
-//        if ( WORD_LOOKUP_CLIENT == null){
-//            WORD_LOOKUP_CLIENT = new WordLookupClient(
-//                   spellCheckUrl );
-//            System.out.println(spellCheckUrl);
-//        }
-//    }
-
     @Override
     public List<ExtractedValue> extractValue(FieldExtractionRequest feRequest, String fieldName,Map<String,Object> config )
     {

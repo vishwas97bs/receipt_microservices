@@ -4,6 +4,8 @@ import ai.infrrd.idc.commons.entities.FieldExtractionRequest;
 import ai.infrrd.idc.commons.entities.FieldExtractionResponse;
 import ai.infrrd.idc.receipt.fieldextractor.merchantname.extractors.ExistingMerchantNameExtractor;
 import ai.infrrd.idc.receipt.fieldextractor.merchantname.extractors.MerchantNameFromTopOfTextExtractor;
+import ai.infrrd.idc.receipt.fieldextractor.merchantname.extractors.MerchantNamePrefixNSuffixBasedExtractor;
+import ai.infrrd.idc.receipt.fieldextractor.merchantname.extractors.WebsiteDomainMerchantNameExtractor;
 import ai.infrrd.idc.receipt.fieldextractor.merchantname.utils.common.ExtractedValue;
 import ai.infrrd.idc.receipt.fieldextractor.merchantname.utils.common.MerchantNameExtractionUtil;
 import ai.infrrd.idc.receipt.fieldextractor.merchantname.utils.common.MongoConnector;
@@ -35,6 +37,12 @@ public class MerchantNameService implements InitializingBean {
     @Autowired
     private GimletConfigService gimletConfigService;
 
+    @Autowired
+    private WebsiteDomainMerchantNameExtractor websiteDomainMerchantNameExtractor;
+
+    @Autowired
+    private MerchantNamePrefixNSuffixBasedExtractor merchantNamePrefixNSuffixBasedExtractor;
+
     @Override
     public void afterPropertiesSet() throws Exception {
         MongoConnector.initializeMongoUrl(mongoServer);
@@ -45,6 +53,8 @@ public class MerchantNameService implements InitializingBean {
         List<List<FieldExtractionResponse>> listOfResponses = new ArrayList<>();
         List<FieldExtractionResponse> responses = new ArrayList<>();
         Map<String,Object> configMap = getGimletConfig();
+        merchantNamePrefixNSuffixBasedExtractor.extractValue(fieldExtractionRequest,"merchantName",configMap);
+        websiteDomainMerchantNameExtractor.extractValue(fieldExtractionRequest,"merchantname",configMap);
         List<ExtractedValue> values = merchantNameFromTopOfTextExtractor.extractValue(fieldExtractionRequest,"merchantname",configMap);
         List<ExtractedValue> values1  = existingMerchantNameExtractor.extractValue(fieldExtractionRequest,"existingmerchant",configMap);
         for (ExtractedValue extractedValue:values){
