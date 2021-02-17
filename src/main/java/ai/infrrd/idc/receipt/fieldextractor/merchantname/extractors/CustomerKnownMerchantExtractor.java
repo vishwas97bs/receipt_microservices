@@ -17,7 +17,7 @@
 //    private static final Logger LOG = LoggerFactory.getLogger( CustomerKnownMerchantExtractor.class );
 //
 //    @Override
-//    public List<ExtractedValue> extractValue(FieldExtractionRequest feRequest, String fieldName) {
+//    public List<ExtractedValue> extractValue(FieldExtractionRequest feRequest, String fieldName,Map<String,Object> config) {
 //        Map<String, Object> apiKeyConfiguration;
 //        String rawText = feRequest.getOcrData().getRawText();
 //        List<ExtractedValue> response = null;

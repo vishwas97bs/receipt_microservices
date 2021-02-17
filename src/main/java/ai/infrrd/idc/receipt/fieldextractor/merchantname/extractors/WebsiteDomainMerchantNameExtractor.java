@@ -164,7 +164,6 @@ public class WebsiteDomainMerchantNameExtractor implements CandidateValueExtract
             }
 
         }
-        System.out.println("webistr domain "+extractedValueList);
         return extractedValueList;
     }
 

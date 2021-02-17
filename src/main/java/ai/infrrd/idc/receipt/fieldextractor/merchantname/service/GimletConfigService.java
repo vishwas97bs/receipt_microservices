@@ -49,8 +49,6 @@ public class GimletConfigService implements InitializingBean {
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
-        System.out.println( configJsonObj.get("configuration"));
-        System.out.println("hahahahahahahahah "+map);
         return map;
     }
 

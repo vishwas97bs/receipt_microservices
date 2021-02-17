@@ -5,8 +5,9 @@ import ai.infrrd.idc.receipt.fieldextractor.merchantname.preprocessor.preprocess
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
-
+@Component
 public class RemoveExtraSpacesPreProcessor implements TextPreprocessor
 {
 

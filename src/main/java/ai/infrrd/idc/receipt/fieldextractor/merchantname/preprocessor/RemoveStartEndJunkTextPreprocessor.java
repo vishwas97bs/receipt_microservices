@@ -3,8 +3,9 @@ package ai.infrrd.idc.receipt.fieldextractor.merchantname.preprocessor;
 
 import ai.infrrd.idc.commons.entities.FieldExtractionRequest;
 import ai.infrrd.idc.receipt.fieldextractor.merchantname.preprocessor.preprocessorinterface.TextPreprocessor;
+import org.springframework.stereotype.Component;
 
-
+@Component
 public class RemoveStartEndJunkTextPreprocessor implements TextPreprocessor
 {
 

@@ -43,6 +43,15 @@ public class MerchantNameService implements InitializingBean {
     @Autowired
     private MerchantNamePrefixNSuffixBasedExtractor merchantNamePrefixNSuffixBasedExtractor;
 
+    @Autowired
+    private PreprocessorService preprocessorService;
+
+    @Autowired
+    private FilterService filterService;
+
+    @Autowired
+    private LocaleService localeService;
+
     @Override
     public void afterPropertiesSet() throws Exception {
         MongoConnector.initializeMongoUrl(mongoServer);
@@ -50,14 +59,28 @@ public class MerchantNameService implements InitializingBean {
     }
 
     public List<List<FieldExtractionResponse>> extractMerchantName(FieldExtractionRequest fieldExtractionRequest){
+        String locale = localeService.conversionOfLocale( fieldExtractionRequest );
+        String preprocessedText = preprocessorService.preprocess(fieldExtractionRequest,"merchantname");
+        fieldExtractionRequest.getOcrData().setRawText(preprocessedText);
         List<List<FieldExtractionResponse>> listOfResponses = new ArrayList<>();
         List<FieldExtractionResponse> responses = new ArrayList<>();
         Map<String,Object> configMap = getGimletConfig();
-        merchantNamePrefixNSuffixBasedExtractor.extractValue(fieldExtractionRequest,"merchantName",configMap);
-        websiteDomainMerchantNameExtractor.extractValue(fieldExtractionRequest,"merchantname",configMap);
-        List<ExtractedValue> values = merchantNameFromTopOfTextExtractor.extractValue(fieldExtractionRequest,"merchantname",configMap);
-        List<ExtractedValue> values1  = existingMerchantNameExtractor.extractValue(fieldExtractionRequest,"existingmerchant",configMap);
-        for (ExtractedValue extractedValue:values){
+        List<ExtractedValue> prefixSuffixMerchant = merchantNamePrefixNSuffixBasedExtractor.extractValue(fieldExtractionRequest,"merchantName",configMap,locale);
+        List<ExtractedValue> websiteExtractedMerchant = websiteDomainMerchantNameExtractor.extractValue(fieldExtractionRequest,"merchantname",configMap);
+        List<ExtractedValue> topOfTextMerchant = merchantNameFromTopOfTextExtractor.extractValue(fieldExtractionRequest,"merchantname",configMap);
+        List<ExtractedValue> existingmerchant  = existingMerchantNameExtractor.extractValue(fieldExtractionRequest,"existingmerchant",configMap);
+
+        List<ExtractedValue> listOfValues = new ArrayList<>();
+        addResponses(prefixSuffixMerchant,listOfValues);
+        addResponses(topOfTextMerchant,listOfValues);
+        addResponses(websiteExtractedMerchant,listOfValues);
+        addResponses(existingmerchant,listOfValues);
+
+        List<ExtractedValue> filteredValues = filterService.filterProcess(listOfValues,fieldExtractionRequest);
+
+
+
+        for (ExtractedValue extractedValue:filteredValues){
             FieldExtractionResponse fieldExtractionResponse = new FieldExtractionResponse();
             fieldExtractionResponse.setValue(extractedValue.getValue());
             fieldExtractionResponse.setOperation(extractedValue.getOperation());
@@ -67,12 +90,6 @@ public class MerchantNameService implements InitializingBean {
             }
             responses.add(fieldExtractionResponse);
         }
-        FieldExtractionResponse fieldExtractionResponse = new FieldExtractionResponse();
-        fieldExtractionResponse.setSuccess(true);
-        fieldExtractionResponse.setValue(values1.get(0).getValue());
-        fieldExtractionResponse.setConfidence(values1.get(0).getConfidence());
-        fieldExtractionResponse.setOperation(values1.get(0).getOperation());
-        responses.add(fieldExtractionResponse);
         listOfResponses.add(responses);
         return listOfResponses;
     }
@@ -85,7 +102,11 @@ public class MerchantNameService implements InitializingBean {
         return  configMap;
     }
 
-
-
+    public List<ExtractedValue> addResponses(List<ExtractedValue> response,List<ExtractedValue> responses){
+        for (ExtractedValue extractedValue:response){
+            responses.add(extractedValue);
+        }
+        return responses;
+    }
 
 }

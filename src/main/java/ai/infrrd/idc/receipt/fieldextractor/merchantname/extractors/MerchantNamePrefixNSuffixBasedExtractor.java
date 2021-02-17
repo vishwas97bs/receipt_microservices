@@ -3,6 +3,8 @@ package ai.infrrd.idc.receipt.fieldextractor.merchantname.extractors;
 
 import ai.infrrd.idc.commons.entities.FieldExtractionRequest;
 import ai.infrrd.idc.receipt.fieldextractor.merchantname.extractors.inteface.CandidateValueExtractor;
+import ai.infrrd.idc.receipt.fieldextractor.merchantname.preprocessor.RemoveExtraSpacesPreProcessor;
+import ai.infrrd.idc.receipt.fieldextractor.merchantname.preprocessor.preprocessorinterface.TextPreprocessor;
 import ai.infrrd.idc.receipt.fieldextractor.merchantname.service.ConfigService;
 import ai.infrrd.idc.receipt.fieldextractor.merchantname.utils.common.ExtractedValue;
 import ai.infrrd.idc.receipt.fieldextractor.merchantname.utils.common.PatternExtractor;
@@ -12,21 +14,22 @@ import ai.infrrd.idc.receipt.fieldextractor.merchantname.utils.constants.Merchan
 import ai.infrrd.idc.receipt.fieldextractor.merchantname.utils.constants.MerchantNameExtractorType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
 import java.util.regex.PatternSyntaxException;
 
 @Component
-public class MerchantNamePrefixNSuffixBasedExtractor implements CandidateValueExtractor
+public class MerchantNamePrefixNSuffixBasedExtractor
 {
 
     private static final Logger LOG = LoggerFactory.getLogger( MerchantNamePrefixNSuffixBasedExtractor.class );
     private ConfigService configService = ConfigService.getInstance();
 
 
-    @Override
-    public List<ExtractedValue> extractValue(FieldExtractionRequest feRequest, String fieldName,Map<String,Object> config )
+
+    public List<ExtractedValue> extractValue(FieldExtractionRequest feRequest, String fieldName,Map<String,Object> config,String locale )
     {
 
         LOG.debug( "Entering extract Method of Regex extraction with fieldName: {}", fieldName );
@@ -38,8 +41,8 @@ public class MerchantNamePrefixNSuffixBasedExtractor implements CandidateValueEx
         }
         String inputText = preProcessText( feRequest.getOcrData().getRawText(), feRequest, fieldName );
 
-        List<String> tagLines = getTagLines( feRequest,config );
-        List<String> suffixLines = getSuffixLines( feRequest ,config);
+        List<String> tagLines = getTagLines( feRequest,config,locale );
+        List<String> suffixLines = getSuffixLines( feRequest ,config,locale);
         List<String> tagLinesRegexList = configService.getAllValueList( "merchant_name_tag_lines", "_extract_regex" ,config);
         List<String> suffixRegexList = configService.getAllValueList( "merchant_name_suffix", "_extract_regex",config );
 
@@ -59,7 +62,6 @@ public class MerchantNamePrefixNSuffixBasedExtractor implements CandidateValueEx
                 MerchantNameExtractorType.SUFFIX_LINE, baseConfidence ) );
 
         LOG.debug( "Matched text: {}", response );
-        System.out.println("batamaamamamamaammaam "+response);
         return response;
     }
 
@@ -112,30 +114,30 @@ public class MerchantNamePrefixNSuffixBasedExtractor implements CandidateValueEx
     }
 
 
-    private List<String> getSuffixLines(FieldExtractionRequest feRequest,Map<String,Object> config )
+    private List<String> getSuffixLines(FieldExtractionRequest feRequest,Map<String,Object> config,String locale )
     {
         // TODO: need to move key to gimlet config keys (new collection)
         List<String> suffixLines = configService.getValueList( "merchant_name_suffix" ,config);
-//        if ( feRequest.getLocale() != null ) {
-//            List<String> localeBasedSuffixLines = feRequest.getValueList( feRequest.getLocale() + "_merchant_name_suffix" );
-//            if ( localeBasedSuffixLines != null ) {
-//                suffixLines.addAll( localeBasedSuffixLines );
-//            }
-//        }
+        if ( locale != null ) {
+            List<String> localeBasedSuffixLines = configService.getValueList( locale + "_merchant_name_suffix",config );
+            if ( localeBasedSuffixLines != null ) {
+                suffixLines.addAll( localeBasedSuffixLines );
+            }
+        }
         return suffixLines;
     }
 
 
-    private List<String> getTagLines(FieldExtractionRequest feRequest,Map<String,Object> config )
+    private List<String> getTagLines(FieldExtractionRequest feRequest,Map<String,Object> config,String locale )
     {
         // TODO: need to move key to gimlet config keys (new collection)
         List<String> tagLines = configService.getValueList( "merchant_name_tag_lines" ,config);
-//        if ( feRequest.getLocale() != null ) {
-//            List<String> localeBasedTagLines = feRequest.getValueList( feRequest.getLocale() + "_merchant_name_tag_lines" );
-//            if ( localeBasedTagLines != null ) {
-//                tagLines.addAll( localeBasedTagLines );
-//            }
-//        }
+        if ( locale != null ) {
+            List<String> localeBasedTagLines = configService.getValueList( locale + "_merchant_name_tag_lines",config );
+            if ( localeBasedTagLines != null ) {
+                tagLines.addAll( localeBasedTagLines );
+            }
+        }
         return tagLines;
     }
 
@@ -144,14 +146,13 @@ public class MerchantNamePrefixNSuffixBasedExtractor implements CandidateValueEx
     {
         // NEED to Process text locally since this pre processing may not be
         // beneficial for other candidate value extractor start
-//        String preProcessedText = inputText;
-//        TextPreprocessor preProcessor = new ConvertToLowerCasePreprocessor();
-//        preProcessedText = preProcessor.preProcessText( preProcessedText, feRequest, fieldName );
-//        preProcessor = new RemoveExtraSpacesPreProcessor();
-//        preProcessedText = preProcessor.preProcessText( preProcessedText, feRequest, fieldName );
-//        preProcessor = new RemoveEmptyLinesPreprocessor();
-//        return preProcessor.preProcessText( preProcessedText, feRequest, fieldName );
-        return inputText;
+        String preProcessedText = inputText;
+        TextPreprocessor preProcessor = new ConvertToLowerCasePreprocessor();
+        preProcessedText = preProcessor.preProcessText( preProcessedText, feRequest, fieldName );
+        preProcessor = new RemoveExtraSpacesPreProcessor();
+        preProcessedText = preProcessor.preProcessText( preProcessedText, feRequest, fieldName );
+        preProcessor = new RemoveEmptyLinesPreprocessor();
+        return preProcessor.preProcessText( preProcessedText, feRequest, fieldName );
     }
 
 
