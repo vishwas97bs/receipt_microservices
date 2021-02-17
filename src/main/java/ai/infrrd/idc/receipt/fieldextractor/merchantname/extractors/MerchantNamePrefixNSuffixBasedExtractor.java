@@ -23,7 +23,7 @@
 //
 //
 //    @Override
-//    public List<ExtractedValue> extractValue(FieldExtractionRequest feRequest, String fieldName )
+//    public List<ExtractedValue> extractValue(FieldExtractionRequest feRequest, String fieldName,Map<String,Object> config )
 //    {
 //
 //        LOG.debug( "Entering extract Method of Regex extraction with fieldName: {}", fieldName );

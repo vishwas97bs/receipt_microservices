@@ -4,8 +4,9 @@ import ai.infrrd.idc.commons.entities.FieldExtractionRequest;
 import ai.infrrd.idc.receipt.fieldextractor.merchantname.utils.common.ExtractedValue;
 
 import java.util.List;
+import java.util.Map;
 
 public interface CandidateValueExtractor {
 
-    public List<ExtractedValue> extractValue(FieldExtractionRequest feRequest , String fieldName );
+    public List<ExtractedValue> extractValue(FieldExtractionRequest feRequest , String fieldName, Map<String,Object> config);
 }

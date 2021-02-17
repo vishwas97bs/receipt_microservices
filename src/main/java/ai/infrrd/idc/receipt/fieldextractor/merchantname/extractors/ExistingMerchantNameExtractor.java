@@ -14,6 +14,9 @@ import ai.infrrd.idc.receipt.fieldextractor.merchantname.utils.constants.Merchan
 import ai.infrrd.idc.receipt.fieldextractor.merchantname.utils.constants.UtilConditions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import java.util.*;
 import java.util.Map.Entry;
@@ -25,7 +28,8 @@ import java.util.Map.Entry;
  *
  * @author charu
  */
-public class ExistingMerchantNameExtractor implements CandidateValueExtractor
+@Component
+public class ExistingMerchantNameExtractor implements CandidateValueExtractor, InitializingBean
 {
 
     private static final double MINIMUM_CONFIDENCE = .5;
@@ -36,15 +40,20 @@ public class ExistingMerchantNameExtractor implements CandidateValueExtractor
     private MerchantNameExtractionUtil merchantNameExtractionUtil = MerchantNameExtractionUtil.getInstance();
     private Utils utils = Utils.getInstance();
 
-    public static  void initializeSpellcheck(String spellcheckUrl){
+    @Value("${spellcheck-server}")
+    private String spellCheckUrl;
+
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
         if (SPELL_CHECK_CLIENT == null){
             SPELL_CHECK_CLIENT = new SpellCheckClient(
-                    spellcheckUrl );
+                    spellCheckUrl );
         }
     }
 
     @Override
-    public List<ExtractedValue> extractValue(FieldExtractionRequest feRequest, String fieldName )
+    public List<ExtractedValue> extractValue(FieldExtractionRequest feRequest, String fieldName ,Map<String,Object> config)
     {
 
         String ocrText = feRequest.getOcrData().getRawText();
@@ -270,4 +279,5 @@ public class ExistingMerchantNameExtractor implements CandidateValueExtractor
         }
         return response;
     }
+
 }

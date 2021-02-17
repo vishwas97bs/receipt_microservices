@@ -67,6 +67,8 @@ public class MerchantConstants {
     public static final String CONFIGURATION = "configuration";
     public static final String API_CONFIG = "apiConfig";
     public static final String LANGUAGES = "languages";
+    public static final String RECEIPT = "receipt";
+    public static final String GIMLET_CONFIGURATION = "gimletConfiguration";
 
     public static final Map<String, String> LANGUAGE_CODES = new HashMap<String, String>()
     {

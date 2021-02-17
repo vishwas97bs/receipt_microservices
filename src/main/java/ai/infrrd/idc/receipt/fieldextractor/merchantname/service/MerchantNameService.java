@@ -8,6 +8,7 @@ import ai.infrrd.idc.receipt.fieldextractor.merchantname.utils.common.ExtractedV
 import ai.infrrd.idc.receipt.fieldextractor.merchantname.utils.common.MerchantNameExtractionUtil;
 import ai.infrrd.idc.receipt.fieldextractor.merchantname.utils.common.MongoConnector;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -23,24 +24,29 @@ public class MerchantNameService implements InitializingBean {
     private String spellCheckUrl;
 
     @Value ( "${mongoServer}")
-    private String mongoServer;
+    private String mongoServer ;
 
+    @Autowired
+    private ExistingMerchantNameExtractor existingMerchantNameExtractor;
+
+    @Autowired
+    private MerchantNameFromTopOfTextExtractor merchantNameFromTopOfTextExtractor;
+
+    @Autowired
+    private GimletConfigService gimletConfigService;
 
     @Override
     public void afterPropertiesSet() throws Exception {
         MongoConnector.initializeMongoUrl(mongoServer);
         MerchantNameExtractionUtil.initializeMongo(dbName);
-        MerchantNameFromTopOfTextExtractor.initializeSpellcheck(spellCheckUrl);
-        ExistingMerchantNameExtractor.initializeSpellcheck(spellCheckUrl);
     }
 
     public List<List<FieldExtractionResponse>> extractMerchantName(FieldExtractionRequest fieldExtractionRequest){
-        MerchantNameFromTopOfTextExtractor merchantNameFromTopOfTextExtractor = new MerchantNameFromTopOfTextExtractor();
-        ExistingMerchantNameExtractor existingMerchantNameExtractor = new ExistingMerchantNameExtractor();
         List<List<FieldExtractionResponse>> listOfResponses = new ArrayList<>();
         List<FieldExtractionResponse> responses = new ArrayList<>();
-        List<ExtractedValue> values = merchantNameFromTopOfTextExtractor.extractValue(fieldExtractionRequest,"merchantname");
-        List<ExtractedValue> values1  = existingMerchantNameExtractor.extractValue(fieldExtractionRequest,"existingmerchant");
+        Map<String,Object> configMap = getGimletConfig();
+        List<ExtractedValue> values = merchantNameFromTopOfTextExtractor.extractValue(fieldExtractionRequest,"merchantname",configMap);
+        List<ExtractedValue> values1  = existingMerchantNameExtractor.extractValue(fieldExtractionRequest,"existingmerchant",configMap);
         for (ExtractedValue extractedValue:values){
             FieldExtractionResponse fieldExtractionResponse = new FieldExtractionResponse();
             fieldExtractionResponse.setValue(extractedValue.getValue());
@@ -58,14 +64,18 @@ public class MerchantNameService implements InitializingBean {
         fieldExtractionResponse.setOperation(values1.get(0).getOperation());
         responses.add(fieldExtractionResponse);
         listOfResponses.add(responses);
-        initializeRegexes();
         return listOfResponses;
     }
 
-    public  void initializeRegexes(){
-//         GimletConfigService gimletConfigService = GimletConfigServiceImpl.getInstance();
-//         Map<String,Object> map=gimletConfigService.getExtractionConfiguration("receipt");
-//        System.out.println("hhhahahahahahahahahahahahaha " + map.size());
+    public Map<String,Object> getGimletConfig(){
+        Map<String,Object> configMap = gimletConfigService.getGimletConfig();
+        if (configMap == null){
+            return new HashMap<>();
+        }
+        return  configMap;
     }
+
+
+
 
 }

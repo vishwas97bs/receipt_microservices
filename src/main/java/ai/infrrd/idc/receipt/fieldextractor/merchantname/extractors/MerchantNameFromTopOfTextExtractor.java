@@ -14,12 +14,15 @@ import ai.infrrd.idc.receipt.fieldextractor.merchantname.utils.constants.Confide
 import ai.infrrd.idc.receipt.fieldextractor.merchantname.utils.constants.MerchantNameExtractorType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import java.util.*;
 
 
-
-public class MerchantNameFromTopOfTextExtractor implements CandidateValueExtractor
+@Component
+public class MerchantNameFromTopOfTextExtractor implements CandidateValueExtractor, InitializingBean
 {
 
     private static final Logger LOG = LoggerFactory.getLogger( MerchantNameFromTopOfTextExtractor.class );
@@ -30,17 +33,28 @@ public class MerchantNameFromTopOfTextExtractor implements CandidateValueExtract
 
     private Utils utils= Utils.getInstance();
 
+    @Value("${spellcheck-server}")
+    private String spellCheckUrl;
 
-    public static  void initializeSpellcheck(String spellCheckUrl){
+    @Override
+    public void afterPropertiesSet() throws Exception {
         if ( WORD_LOOKUP_CLIENT == null){
             WORD_LOOKUP_CLIENT = new WordLookupClient(
-                   spellCheckUrl );
+                    spellCheckUrl );
             System.out.println(spellCheckUrl);
         }
     }
 
+//    public static  void initializeSpellcheck(String spellCheckUrl){
+//        if ( WORD_LOOKUP_CLIENT == null){
+//            WORD_LOOKUP_CLIENT = new WordLookupClient(
+//                   spellCheckUrl );
+//            System.out.println(spellCheckUrl);
+//        }
+//    }
+
     @Override
-    public List<ExtractedValue> extractValue(FieldExtractionRequest feRequest, String fieldName )
+    public List<ExtractedValue> extractValue(FieldExtractionRequest feRequest, String fieldName,Map<String,Object> config )
     {
 
         String ocrText = feRequest.getOcrData().getRawText();
@@ -123,4 +137,5 @@ public class MerchantNameFromTopOfTextExtractor implements CandidateValueExtract
             return new HashMap<>();
         }
     }
+
 }
