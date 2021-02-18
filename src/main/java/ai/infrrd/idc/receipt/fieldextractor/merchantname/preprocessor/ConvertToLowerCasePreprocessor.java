@@ -1,4 +1,4 @@
-package ai.infrrd.idc.receipt.fieldextractor.merchantname.extractors;
+package ai.infrrd.idc.receipt.fieldextractor.merchantname.preprocessor;
 
 import ai.infrrd.idc.commons.entities.FieldExtractionRequest;
 import ai.infrrd.idc.receipt.fieldextractor.merchantname.preprocessor.preprocessorinterface.TextPreprocessor;

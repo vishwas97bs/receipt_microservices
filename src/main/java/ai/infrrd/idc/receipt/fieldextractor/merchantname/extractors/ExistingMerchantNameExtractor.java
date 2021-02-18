@@ -22,12 +22,6 @@ import java.util.*;
 import java.util.Map.Entry;
 
 
-
-/**
- * Extract name from existing merchants
- *
- * @author charu
- */
 @Component
 public class ExistingMerchantNameExtractor implements CandidateValueExtractor, InitializingBean
 {
@@ -84,10 +78,8 @@ public class ExistingMerchantNameExtractor implements CandidateValueExtractor, I
             extractedValueList.add( extractedMerchantName );
         }
         LOG.debug( "Obtained candidate merchant from text : {}", extractedMerchantName );
-//        Object enableNgram = feRequest.getExtractionConfiguration( ENABLE_N_GRAM_APPROACH );
         boolean enableNgramApproach = true;
-//        if ( enableNgram != null )
-//            enableNgramApproach = (boolean) enableNgram;
+
         if ( enableNgramApproach ) {
             List<NGram> ngramResponse = findMerchantUsingNGram( text, ocrConfidence );
             for ( NGram ngram : ngramResponse ) {

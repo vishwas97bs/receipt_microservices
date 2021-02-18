@@ -2,7 +2,8 @@ package ai.infrrd.idc.receipt.fieldextractor.merchantname.extractors;
 
 
 import ai.infrrd.idc.commons.entities.FieldExtractionRequest;
-import ai.infrrd.idc.receipt.fieldextractor.merchantname.extractors.inteface.CandidateValueExtractor;
+import ai.infrrd.idc.receipt.fieldextractor.merchantname.preprocessor.ConvertToLowerCasePreprocessor;
+import ai.infrrd.idc.receipt.fieldextractor.merchantname.preprocessor.RemoveEmptyLinesPreprocessor;
 import ai.infrrd.idc.receipt.fieldextractor.merchantname.preprocessor.RemoveExtraSpacesPreProcessor;
 import ai.infrrd.idc.receipt.fieldextractor.merchantname.preprocessor.preprocessorinterface.TextPreprocessor;
 import ai.infrrd.idc.receipt.fieldextractor.merchantname.service.ConfigService;
@@ -14,7 +15,6 @@ import ai.infrrd.idc.receipt.fieldextractor.merchantname.utils.constants.Merchan
 import ai.infrrd.idc.receipt.fieldextractor.merchantname.utils.constants.MerchantNameExtractorType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.*;

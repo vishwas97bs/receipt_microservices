@@ -9,6 +9,8 @@ import ai.infrrd.idc.receipt.fieldextractor.merchantname.extractors.WebsiteDomai
 import ai.infrrd.idc.receipt.fieldextractor.merchantname.utils.common.ExtractedValue;
 import ai.infrrd.idc.receipt.fieldextractor.merchantname.utils.common.MerchantNameExtractionUtil;
 import ai.infrrd.idc.receipt.fieldextractor.merchantname.utils.common.MongoConnector;
+import ai.infrrd.idc.utils.entity.ValueIndex;
+import ai.infrrd.idc.utils.extractors.IndexExtractor;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -77,6 +79,7 @@ public class MerchantNameService implements InitializingBean {
         addResponses(existingmerchant,listOfValues);
 
         List<ExtractedValue> filteredValues = filterService.filterProcess(listOfValues,fieldExtractionRequest);
+        IndexExtractor indexExtractor = new IndexExtractor();
 
        FieldExtractionResponse fieldExtractionResponse = new FieldExtractionResponse();
         if (filteredValues!=null && filteredValues.size()>0){
@@ -84,7 +87,21 @@ public class MerchantNameService implements InitializingBean {
             fieldExtractionResponse.setConfidence(filteredValues.get(0).getConfidence());
             fieldExtractionResponse.setOperation(filteredValues.get(0).getOperation());
             fieldExtractionResponse.setMatchedVicinity(filteredValues.get(0).getMatchedVicinity());
+            fieldExtractionResponse.setFieldName(fieldExtractionRequest.getFieldConfigDetails().get(0).getFieldName());
             fieldExtractionResponse.setSuccess(true);
+            //index extraction
+            if ( filteredValues.get(0).getMatchedValue() != null
+                    && !filteredValues.get(0).getMatchedValue().isEmpty() ) {
+                ValueIndex indexes = indexExtractor.getValueIndex( fieldExtractionRequest.getOcrData().getRawText(),
+                        filteredValues.get(0).getMatchedValue(), filteredValues.get(0).getMatchedVicinity() );
+                fieldExtractionResponse.setStartIndex( indexes.getStartIndex() );
+                fieldExtractionResponse.setEndIndex( indexes.getEndIndex() );
+            }else{
+                ValueIndex indexes = indexExtractor.getValueIndex( fieldExtractionRequest.getOcrData().getRawText(),
+                        filteredValues.get(0).getValue().toString(), filteredValues.get(0).getMatchedVicinity() );
+                fieldExtractionResponse.setStartIndex( indexes.getStartIndex() );
+                fieldExtractionResponse.setEndIndex( indexes.getEndIndex() );
+            }
         }
 
         responses.add(fieldExtractionResponse);
@@ -92,6 +109,7 @@ public class MerchantNameService implements InitializingBean {
         return listOfResponses;
     }
 
+    //fetch configuration(regexes and vicinities stored in mongodb)
     public Map<String,Object> getGimletConfig(){
         Map<String,Object> configMap = gimletConfigService.getGimletConfig();
         if (configMap == null){
@@ -100,6 +118,7 @@ public class MerchantNameService implements InitializingBean {
         return  configMap;
     }
 
+    //add all respones from extractors
     public List<ExtractedValue> addResponses(List<ExtractedValue> response,List<ExtractedValue> responses){
         for (ExtractedValue extractedValue:response){
             responses.add(extractedValue);

@@ -45,7 +45,7 @@ public class MerchantNameController {
         LOGGER.info( "Time taken for Field Extractor {} seconds for requestId: {}", ( endTime - startTime ) / 1000.0,
                 fieldExtractionRequest.getRequestId() );
         MDC.remove( Constants.LOG_ID );
-        if ( response != null && !response.isEmpty() && response.get( 0 ).get(0).isSuccess() ) {
+        if ( response != null && response.size()>0 && response.get(0).size()>0 && !response.isEmpty() && response.get( 0 ).get(0).isSuccess() ) {
             return responseBuilder.buildSuccessResponse( response, Constants.FIELD_VALUE_RETRIVED );
         } else {
             return responseBuilder.buildSuccessResponse( null, Constants.FIELD_VALUE_NOT_FOUND );
