@@ -2,6 +2,8 @@ package ai.infrrd.idc.receipt.fieldextractor.merchantname.utils.common.spellchec
 
 import ai.infrrd.idc.receipt.fieldextractor.merchantname.utils.SpellCheckException;
 import okhttp3.OkHttpClient;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Value;
 import retrofit2.Call;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -12,16 +14,14 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-public class WordLookupClient {
-    WordLookupClientInterface wordLookupClientInterface = null;
+public class WordLookupClient implements InitializingBean {
+    WordLookupClientInterface wordLookupClientInterface;
 
+    @Value( "${spellcheck-server}")
+    String apiUrl;
 
-    /**
-     * Constructor for {@link WordLookupClient}
-     * @param apiUrl    api url
-     */
-    public WordLookupClient( String apiUrl )
-    {
+    @Override
+    public void afterPropertiesSet() {
         this.wordLookupClientInterface = new Retrofit.Builder().baseUrl( apiUrl )
                 .addConverterFactory( GsonConverterFactory.create() )
                 .client( new OkHttpClient().newBuilder().readTimeout( 5, TimeUnit.SECONDS ).build() ).build()
@@ -44,7 +44,7 @@ public class WordLookupClient {
                 return response.body();
             } else {
                 throw new SpellCheckException( String.format( "Error while fetching entries from SpellCheck API: %s",
-                        new String( response.errorBody().bytes() ) ) );
+                        new String(response.errorBody() != null ? response.errorBody().bytes() : new byte[0]) ) );
             }
         } catch ( IOException e ) {
             throw new SpellCheckException( "Error occurred while connecting to SpellCheck service", e );

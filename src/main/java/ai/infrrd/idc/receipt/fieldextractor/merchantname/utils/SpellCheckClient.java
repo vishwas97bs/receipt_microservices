@@ -2,6 +2,9 @@ package ai.infrrd.idc.receipt.fieldextractor.merchantname.utils;
 
 
 import okhttp3.OkHttpClient;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 import retrofit2.Call;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -18,22 +21,23 @@ import java.util.concurrent.TimeUnit;
  * Class for Creating spellCheck Client
  * Created by ritesh on 8/6/17.
  */
-public class SpellCheckClient
+public class SpellCheckClient implements InitializingBean
 {
     SpellCheckClientInterface spellCheckClientInterface = null;
 
+    @Value( "${spellcheck-server}")
+    String apiUrl;
 
     /**
      * Constructor for {@link SpellCheckClient}
-     * @param apiUrl    api url
      */
-    public SpellCheckClient(String apiUrl )
-    {
-        this.spellCheckClientInterface = new Retrofit.Builder().baseUrl( apiUrl )
-            .addConverterFactory( GsonConverterFactory.create() )
-            .client( new OkHttpClient().newBuilder().readTimeout( 5, TimeUnit.SECONDS ).build() ).build()
-            .create( SpellCheckClientInterface.class );
-    }
+//    public SpellCheckClient()
+//    {
+//        this.spellCheckClientInterface = new Retrofit.Builder().baseUrl( apiUrl )
+//            .addConverterFactory( GsonConverterFactory.create() )
+//            .client( new OkHttpClient().newBuilder().readTimeout( 5, TimeUnit.SECONDS ).build() ).build()
+//            .create( SpellCheckClientInterface.class );
+//    }
 
 
     /**
@@ -51,7 +55,7 @@ public class SpellCheckClient
                 return response.body();
             } else {
                 throw new SpellCheckException( String.format( "Error while fetching entries from SpellCheck API: %s",
-                    new String( response.errorBody().bytes() ) ) );
+                    new String(response.errorBody() != null ? response.errorBody().bytes() : new byte[0]) ) );
             }
         } catch ( IOException e ) {
             throw new SpellCheckException( "Error occurred while connecting to SpellCheck service", e );
@@ -73,7 +77,7 @@ public class SpellCheckClient
                 return response.body();
             } else {
                 throw new SpellCheckException( String.format( "Error while fetching entries from SpellCheck API: %s",
-                    new String( response.errorBody().bytes() ) ) );
+                    new String(response.errorBody() != null ? response.errorBody().bytes() : new byte[0]) ) );
             }
         } catch ( IOException e ) {
             throw new SpellCheckException( "Error occurred while connecting to SpellCheck service", e );
@@ -96,7 +100,7 @@ public class SpellCheckClient
                 return response.body();
             } else {
                 throw new SpellCheckException( String.format( "Error while fetching entries from SpellCheck API: %s",
-                    new String( response.errorBody().bytes() ) ) );
+                    new String(response.errorBody() != null ? response.errorBody().bytes() : new byte[0]) ) );
             }
         } catch ( IOException e ) {
             throw new SpellCheckException( "Error occurred while connecting to SpellCheck Locale detection service", e );
@@ -106,7 +110,6 @@ public class SpellCheckClient
 
     /**
      * Hits gimlet Locale detection API
-     * @param lineItemCheckRequest
      * @return response
      */
     public LineItemCheckResponse liCheckAPI( LineItemCheckRequest lineItemCheckRequest ) throws SpellCheckException
@@ -118,11 +121,19 @@ public class SpellCheckClient
                 return response.body();
             } else {
                 throw new SpellCheckException( String.format( "Error while fetching entries from SpellCheck API: %s",
-                    new String( response.errorBody().bytes() ) ) );
+                    new String(response.errorBody() != null ? response.errorBody().bytes() : new byte[0]) ) );
             }
         } catch ( IOException e ) {
             throw new SpellCheckException( "Error occurred while connecting to SpellCheck Locale detection service", e );
         }
+    }
+
+    @Override
+    public void afterPropertiesSet() {
+        this.spellCheckClientInterface = new Retrofit.Builder().baseUrl( apiUrl )
+            .addConverterFactory( GsonConverterFactory.create() )
+            .client( new OkHttpClient().newBuilder().readTimeout( 5, TimeUnit.SECONDS ).build() ).build()
+            .create( SpellCheckClientInterface.class );
     }
 
 

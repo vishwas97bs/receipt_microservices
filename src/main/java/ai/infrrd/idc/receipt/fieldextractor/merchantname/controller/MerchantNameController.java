@@ -21,31 +21,36 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+
 @RestController
-@RequestMapping( value = "/heurestic")
-public class MerchantNameController {
+@RequestMapping ( value = "/heurestic")
+public class MerchantNameController
+{
     private static final Logger LOGGER = LoggerFactory.getLogger( MerchantNameController.class );
 
     @Autowired
+    private
     ResponseBuilder responseBuilder;
     @Autowired
+    private
     MerchantNameService merchantNameService;
 
-    @PostMapping( value = "/merchantname")
-    @ApiOperation( value = "extracting field data", response = FieldExtractionResponse.class)
-    @ApiResponses( value = { @ApiResponse( code = 200, message = "Successfully extract field data") })
-    public ResponseEntity<ResponseObject> fieldExtract(@RequestBody FieldExtractionRequest fieldExtractionRequest )
+    @PostMapping ( value = "/merchantname")
+    @ApiOperation ( value = "extracting field data", response = FieldExtractionResponse.class)
+    @ApiResponses ( value = { @ApiResponse ( code = 200, message = "Successfully extract field data") })
+    public ResponseEntity<ResponseObject> fieldExtract( @RequestBody FieldExtractionRequest fieldExtractionRequest )
     {
         MDC.put( Constants.LOG_ID, fieldExtractionRequest.getRequestId() );
         long startTime = System.currentTimeMillis();
         LOGGER.info( "field request-----------------------{}", fieldExtractionRequest );
-        List<List<FieldExtractionResponse>>  response = merchantNameService.extractMerchantName( fieldExtractionRequest );
+        List<List<FieldExtractionResponse>> response = merchantNameService.extractMerchantName( fieldExtractionRequest );
         LOGGER.info( "field response-----------------------{}", response );
         long endTime = System.currentTimeMillis();
         LOGGER.info( "Time taken for Field Extractor {} seconds for requestId: {}", ( endTime - startTime ) / 1000.0,
-                fieldExtractionRequest.getRequestId() );
+            fieldExtractionRequest.getRequestId() );
         MDC.remove( Constants.LOG_ID );
-        if ( response != null && response.size()>0 && response.get(0).size()>0 && !response.isEmpty() && response.get( 0 ).get(0).isSuccess() ) {
+        if ( response != null && !response.isEmpty() && !response.get( 0 ).isEmpty()
+            && response.get( 0 ).get( 0 ).isSuccess() ) {
             return responseBuilder.buildSuccessResponse( response, Constants.FIELD_VALUE_RETRIVED );
         } else {
             return responseBuilder.buildSuccessResponse( null, Constants.FIELD_VALUE_NOT_FOUND );

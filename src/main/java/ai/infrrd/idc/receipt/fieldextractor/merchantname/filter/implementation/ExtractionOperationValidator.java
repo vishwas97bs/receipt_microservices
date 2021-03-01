@@ -8,7 +8,8 @@ import java.util.Arrays;
 import java.util.List;
 
 
-public class ExtractionOperationValidator {
+public class ExtractionOperationValidator
+{
 
     private ExtractionOperationValidator()
     {
@@ -23,7 +24,7 @@ public class ExtractionOperationValidator {
     }
 
 
-    private static boolean isValid(ExtractedValue ev, List<String> validOperationList )
+    private static boolean isValid( ExtractedValue ev, List<String> validOperationList )
     {
         if ( ( ev != null && StringUtils.isNotBlank( ev.getOperation() ) ) ) {
             for ( String operationName : validOperationList ) {

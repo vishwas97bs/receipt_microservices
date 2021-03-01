@@ -25,7 +25,7 @@ import java.util.Map;
 public class MongoConnector implements InitializingBean
 {
     private static final Logger LOG = LoggerFactory.getLogger( MongoConnector.class );
-    private static  String MONGO_DEFAULT = null;
+    private static String MONGO_DEFAULT = null;
     private static final Map<String, MongoClient> CLIENT_MAP = new HashMap<>();
     private static final Map<String, DB> DB_MAP = new HashMap<>();
 
@@ -33,32 +33,19 @@ public class MongoConnector implements InitializingBean
     private String mongoServer;
 
     public static final LineParser DEFAULT_CONVERTER = new LineParser() {
-        @SuppressWarnings( "unchecked")
+        @SuppressWarnings ( "unchecked")
         @Override
-        public Map<String, Object> parse(String string )
+        public Map<String, Object> parse( String string )
         {
             return ( (DBObject) JSON.parse( string ) ).toMap();
         }
     };
 
 
-    private MongoConnector()
-    {
-
-    }
-
     @Override
-    public void afterPropertiesSet() throws Exception {
-        if (MONGO_DEFAULT == null){
-            MONGO_DEFAULT =  Utils.getOrDefault( System.getenv( "MONGO_CONNECTION" ),
-                    mongoServer );
-        }
-    }
-
-    public static void initializeMongoUrl(String mongoUrl){
-   if (MONGO_DEFAULT == null){
-            MONGO_DEFAULT =  Utils.getOrDefault( System.getenv( "MONGO_CONNECTION" ),
-                    mongoUrl );
+    public void afterPropertiesSet() {
+        if ( MONGO_DEFAULT == null ) {
+            MONGO_DEFAULT = Utils.getOrDefault( System.getenv( "MONGO_CONNECTION" ), mongoServer );
         }
     }
 
@@ -69,7 +56,7 @@ public class MongoConnector implements InitializingBean
      * @param mongoConnection MongoConnection String
      * @return Mongo Client
      */
-    public static synchronized MongoClient getClient(String mongoConnection )
+    private static synchronized MongoClient getClient(String mongoConnection)
     {
         if ( !CLIENT_MAP.containsKey( mongoConnection ) ) {
             synchronized ( CLIENT_MAP ) {
@@ -99,8 +86,8 @@ public class MongoConnector implements InitializingBean
      * @param dbName Database name to fetch
      * @return DB Object
      */
-    @SuppressWarnings( "deprecation")
-    public static DB getDB(String dbName )
+    @SuppressWarnings ( "deprecation")
+    public static DB getDB( String dbName )
     {
         if ( !DB_MAP.containsKey( dbName ) ) {
             LOG.info( "Request for a new DB @ {}", dbName );
@@ -121,9 +108,8 @@ public class MongoConnector implements InitializingBean
      * @param stream         stream to be loaded
      * @param db             database name in which stream is to be loaded
      * @param collectionName collection name in which stream is to be loaded
-     * @throws IOException
      */
-    public static void load(InputStream stream, String db, String collectionName ) throws IOException
+    public static void load( InputStream stream, String db, String collectionName ) throws IOException
     {
         load( stream, db, collectionName, DEFAULT_CONVERTER );
     }
@@ -136,9 +122,8 @@ public class MongoConnector implements InitializingBean
      * @param db             database name in which stream is to be loaded
      * @param collectionName collection name in which stream is to be loaded
      * @param parser         converter used to parse a string into DBObjects
-     * @throws IOException
      */
-    public static void load(InputStream stream, String db, String collectionName, LineParser parser ) throws IOException
+    private static void load(InputStream stream, String db, String collectionName, LineParser parser) throws IOException
     {
         LOG.info( "Parsing stream. Destination DB: {}, Destination collection: {}", db, collectionName );
         DBCollection collection = getDB( db ).getCollection( collectionName );

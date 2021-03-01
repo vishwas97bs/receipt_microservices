@@ -12,12 +12,13 @@ import java.util.List;
 
 
 @Component
-public class RemoveJunkValues implements ExtractionFilter {
+public class RemoveJunkValues implements ExtractionFilter
+{
     private static final Logger LOG = LoggerFactory.getLogger( RemoveJunkValues.class );
 
 
     @Override
-    public List<ExtractedValue> filter(List<ExtractedValue> input, FieldExtractionRequest fieldExtractionRequest )
+    public List<ExtractedValue> filter( List<ExtractedValue> input, FieldExtractionRequest fieldExtractionRequest )
     {
         LOG.trace( "Entering filter method" );
         List<ExtractedValue> outputList = new ArrayList<>();

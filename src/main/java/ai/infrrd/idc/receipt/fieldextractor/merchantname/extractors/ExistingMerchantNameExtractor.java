@@ -15,6 +15,7 @@ import ai.infrrd.idc.receipt.fieldextractor.merchantname.utils.constants.UtilCon
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -23,31 +24,41 @@ import java.util.Map.Entry;
 
 
 @Component
-public class ExistingMerchantNameExtractor implements CandidateValueExtractor, InitializingBean
+public class ExistingMerchantNameExtractor implements CandidateValueExtractor
 {
 
     private static final double MINIMUM_CONFIDENCE = .5;
     private static final double MAX_CONFIDENCE = .99;
     private static final Logger LOG = LoggerFactory.getLogger( ExistingMerchantNameExtractor.class );
-    private static final String ENABLE_N_GRAM_APPROACH = "enableNgramApproach";
-    private static SpellCheckClient SPELL_CHECK_CLIENT = null;
-    private MerchantNameExtractionUtil merchantNameExtractionUtil = MerchantNameExtractionUtil.getInstance();
-    private Utils utils = Utils.getInstance();
+    private MerchantNameExtractionUtil merchantNameExtractionUtil;
+    private Utils utils;
+    private SpellCheckClient SPELL_CHECK_CLIENT;
 
-    @Value("${spellcheck-server}")
+    @Autowired
+    public void setMerchantNameExtractionUtil( MerchantNameExtractionUtil merchantNameExtractionUtil )
+    {
+        this.merchantNameExtractionUtil = merchantNameExtractionUtil;
+    }
+
+    @Autowired
+    public void setSPELL_CHECK_CLIENT(SpellCheckClient SPELL_CHECK_CLIENT) {
+        this.SPELL_CHECK_CLIENT = SPELL_CHECK_CLIENT;
+    }
+
+    @Autowired
+    public void setUtils( Utils utils )
+    {
+        this.utils = utils;
+    }
+
+    @Value ( "${spellcheck-server}")
     private String spellCheckUrl;
 
 
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        if (SPELL_CHECK_CLIENT == null){
-            SPELL_CHECK_CLIENT = new SpellCheckClient(
-                    spellCheckUrl );
-        }
-    }
+
 
     @Override
-    public List<ExtractedValue> extractValue(FieldExtractionRequest feRequest, String fieldName ,Map<String,Object> config)
+    public List<ExtractedValue> extractValue( FieldExtractionRequest feRequest, String fieldName, Map<String, Object> config )
     {
 
         String ocrText = feRequest.getOcrData().getRawText();
@@ -78,19 +89,15 @@ public class ExistingMerchantNameExtractor implements CandidateValueExtractor, I
             extractedValueList.add( extractedMerchantName );
         }
         LOG.debug( "Obtained candidate merchant from text : {}", extractedMerchantName );
-        boolean enableNgramApproach = true;
-
-        if ( enableNgramApproach ) {
-            List<NGram> ngramResponse = findMerchantUsingNGram( text, ocrConfidence );
-            for ( NGram ngram : ngramResponse ) {
-                confidence = ngram.getLine() + ( ngram.getNGramSize() * 0.01 ) + ( ngram.getScore() * 0.075 );
-                if ( confidence > MINIMUM_CONFIDENCE ) {
-                    extractedMerchantName = new ExtractedValue( ngram.getNGramStr(),
-                        MerchantNameExtractorType.EXISTING_MERCHANT, null, ngram.getLineIndex(), confidence );
-                    extractedMerchantName.setMatchedValue( ngram.getMatchedVal() );
-                    if ( !contains( extractedValueList, extractedMerchantName, ocrText ) )
-                        extractedValueList.add( extractedMerchantName );
-                }
+        List<NGram> ngramResponse = findMerchantUsingNGram( text, ocrConfidence );
+        for ( NGram ngram : ngramResponse ) {
+            confidence = ngram.getLine() + ( ngram.getNGramSize() * 0.01 ) + ( ngram.getScore() * 0.075 );
+            if ( confidence > MINIMUM_CONFIDENCE ) {
+                extractedMerchantName = new ExtractedValue( ngram.getNGramStr(), MerchantNameExtractorType.EXISTING_MERCHANT,
+                    null, ngram.getLineIndex(), confidence );
+                extractedMerchantName.setMatchedValue( ngram.getMatchedVal() );
+                if ( !contains( extractedValueList, extractedMerchantName, ocrText ) )
+                    extractedValueList.add( extractedMerchantName );
             }
         }
         LOG.debug( "Obtained list of candidate values for existing merchantname: {}", extractedValueList );
@@ -103,12 +110,10 @@ public class ExistingMerchantNameExtractor implements CandidateValueExtractor, I
      * in case line by line based approach have created a candidate value which is same as the one
      * being generated using ngram approach we will skip it
      */
-    private boolean contains(List<ExtractedValue> extractedValues, ExtractedValue newVal, String text )
+    private boolean contains( List<ExtractedValue> extractedValues, ExtractedValue newVal, String text )
     {
         boolean response = false;
-        Iterator<ExtractedValue> val = extractedValues.iterator();
-        while ( val.hasNext() ) {
-            ExtractedValue extVal = val.next();
+        for ( ExtractedValue extVal : extractedValues ) {
             if ( extVal.getValue().equals( newVal.getValue() ) && extVal.getIndex() == newVal.getIndex() ) {
                 response = true;
                 break;
@@ -118,7 +123,7 @@ public class ExistingMerchantNameExtractor implements CandidateValueExtractor, I
     }
 
 
-    public  List<String> getLinesforCandidates(List<String> text )
+    public List<String> getLinesforCandidates( List<String> text )
     {
         List<String> cleanedText = merchantNameExtractionUtil.filter( merchantNameExtractionUtil.clean( text ) );
 
@@ -134,11 +139,9 @@ public class ExistingMerchantNameExtractor implements CandidateValueExtractor, I
      * Finds the merchant name in the given text
      *
      * @param text Text to find the merchant name in
-     * @param ocrConfidence
      * @return Merchant name if found, null otherwise
      */
-    private  Map<String, Tuple3<Double, String, Integer>> findMerchantFromText(final List<String> text,
-                                                                               Double ocrConfidence )
+    private Map<String, Tuple3<Double, String, Integer>> findMerchantFromText( final List<String> text, Double ocrConfidence )
     {
         double score = UtilConditions.SCORE_INITIAL;
         Map<String, Tuple3<Double, String, Integer>> matched = new HashMap<>();
@@ -167,7 +170,7 @@ public class ExistingMerchantNameExtractor implements CandidateValueExtractor, I
         for ( String line : toSendToLookup ) {
 
             String merchant = possibleMerchantNamesFromLookup.get( line );
-            if (  merchant !=null && !merchant.isEmpty() ) {
+            if ( merchant != null && !merchant.isEmpty() ) {
                 if ( !matched.containsKey( merchant ) ) {
                     matched.put( merchant, new Tuple3( score, line, indexLookup.get( line ) ) );
                 } else {
@@ -185,17 +188,17 @@ public class ExistingMerchantNameExtractor implements CandidateValueExtractor, I
      * Finds the merchant name in the given text using ngrams approach
      *
      * @param text          Text to find the merchant name in
-     * @param ocrConfidence
      * @return Merchant name if found, empty list otherwise
      */
-    private List<NGram> findMerchantUsingNGram(List<String> text, Double ocrConfidence )
+    private List<NGram> findMerchantUsingNGram( List<String> text, Double ocrConfidence )
     {
         LOG.debug( "Generating merchant candidates using Ngrams" );
         List<String> cleanedText = merchantNameExtractionUtil.filter( merchantNameExtractionUtil.clean( text ) );
 
         List<String[]> lines = merchantNameExtractionUtil.tokenizeText( cleanedText );
 
-        List<NGram> ngrams = merchantNameExtractionUtil.getNGrams( lines, UtilConditions.MAX_NGRAM_SIZE, UtilConditions.MIN_NGRAM_SIZE );
+        List<NGram> ngrams = merchantNameExtractionUtil.getNGrams( lines, UtilConditions.MAX_NGRAM_SIZE,
+            UtilConditions.MIN_NGRAM_SIZE );
 
         LOG.trace( "Got Ngrams : {}", ngrams );
         List<String> valuesToSend = getValueList( ngrams );
@@ -226,7 +229,7 @@ public class ExistingMerchantNameExtractor implements CandidateValueExtractor, I
     }
 
 
-    public Map<String, List<Map<String, Object>>> findPossibleNGramFromLookup(List<String> lines, Double ocrConfidence )
+    public Map<String, List<Map<String, Object>>> findPossibleNGramFromLookup( List<String> lines, Double ocrConfidence )
     {
         LOG.trace( "Fetching merchant name suggestions for {}.", lines );
         if ( lines != null && !lines.isEmpty() ) {
@@ -243,7 +246,7 @@ public class ExistingMerchantNameExtractor implements CandidateValueExtractor, I
     }
 
 
-    private  Map<String, String> findPossibleMerchantNamesFromLookup(List<String> lines, Double ocrConfidence )
+    private Map<String, String> findPossibleMerchantNamesFromLookup( List<String> lines, Double ocrConfidence )
     {
 
         Map<String, String> result = new HashMap<>();
@@ -263,7 +266,7 @@ public class ExistingMerchantNameExtractor implements CandidateValueExtractor, I
     }
 
 
-    public List<String> getValueList(List<NGram> value )
+    public List<String> getValueList( List<NGram> value )
     {
         List<String> response = new ArrayList<>();
         for ( NGram ngram : value ) {

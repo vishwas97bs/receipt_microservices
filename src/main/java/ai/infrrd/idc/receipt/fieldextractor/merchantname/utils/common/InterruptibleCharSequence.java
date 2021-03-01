@@ -6,7 +6,7 @@ import ai.infrrd.idc.utils.exception.PatternMatchInterruptedException;
 public class InterruptibleCharSequence implements CharSequence
 {
 
-    CharSequence charSequence;
+    private CharSequence charSequence;
 
 
     public InterruptibleCharSequence( CharSequence charSequence )

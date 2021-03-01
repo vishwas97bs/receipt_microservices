@@ -9,13 +9,15 @@ import org.springframework.stereotype.Component;
 
 import java.util.*;
 
+
 @Component
-public class PunctuationsInMerchantNameFilter implements ExtractionFilter {
+public class PunctuationsInMerchantNameFilter implements ExtractionFilter
+{
     private static final Logger LOG = LoggerFactory.getLogger( PunctuationsInMerchantNameFilter.class );
 
 
     @Override
-    public List<ExtractedValue> filter(List<ExtractedValue> input, FieldExtractionRequest fieldExtractionRequest)
+    public List<ExtractedValue> filter( List<ExtractedValue> input, FieldExtractionRequest fieldExtractionRequest )
     {
         LOG.trace( "Entering filter method" );
         if ( input.isEmpty() ) {
@@ -30,7 +32,7 @@ public class PunctuationsInMerchantNameFilter implements ExtractionFilter {
                 LOG.trace( "Adding valid merchant: {}", value.getValue() );
                 response.add( value );
             } else {
-                if ( value.getValue()!=null && !isPunctuationPresent( ( (String) value.getValue() ).toLowerCase() ) ) {
+                if ( value.getValue() != null && !isPunctuationPresent( ( (String) value.getValue() ).toLowerCase() ) ) {
                     LOG.trace( "Adding corrected merchant: {}", value.getValue() );
                     response.add( value );
                 }
@@ -51,8 +53,8 @@ public class PunctuationsInMerchantNameFilter implements ExtractionFilter {
     private boolean isPunctuationPresent( String merchantName )
     {
         LOG.trace( "Entering isPunctuationPresent method" );
-        Set<Character> punctutations = Collections.unmodifiableSet( new HashSet<Character>( Arrays.asList( '/', '\\', ';', '`',
-                '~', '!', '@', '$', '%', '^', '_', '+', '{', '}', '|', ':', '<', '>', '?', '=', '[', ']' ) ) );
+        Set<Character> punctutations = Collections.unmodifiableSet(new HashSet<>(Arrays.asList('/', '\\', ';', '`',
+                '~', '!', '@', '$', '%', '^', '_', '+', '{', '}', '|', ':', '<', '>', '?', '=', '[', ']')) );
         int punctuationCount = 0;
         int punctuationThreshold = 2;
 

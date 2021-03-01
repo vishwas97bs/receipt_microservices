@@ -1,6 +1,5 @@
 package ai.infrrd.idc.receipt.fieldextractor.merchantname.service;
 
-import ai.infrrd.idc.receipt.fieldextractor.merchantname.MerchantnameApplication;
 import ai.infrrd.idc.receipt.fieldextractor.merchantname.utils.constants.MerchantConstants;
 
 import java.util.ArrayList;
@@ -8,36 +7,25 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ConfigService {
 
-    private static ConfigService configService = null;
+public class ConfigService
+{
 
-    private ConfigService(){
-
-    }
-
-    public static ConfigService getInstance(){
-        if (configService==null){
-            configService = new ConfigService();
-        }
-        return  configService;
-    }
-
-
-
-    public List<String> getRegexList(String fieldName , Map<String,Object> config,String locale)
+    public List<String> getRegexList( String fieldName, Map<String, Object> config, String locale )
     {
-        return getAllValueList( fieldName, MerchantConstants.EXTRACT_REGEX_EXTENSION,config,locale );
+        return getAllValueList( fieldName, MerchantConstants.EXTRACT_REGEX_EXTENSION, config, locale );
     }
 
-    @SuppressWarnings ("unchecked") public List<String> getAllValueList( String key, String extension , Map<String,Object> config,String locale)
+
+    @SuppressWarnings ( "unchecked")
+    public List<String> getAllValueList( String key, String extension, Map<String, Object> config, String locale )
     {
         List<String> response = new ArrayList<>();
 
-        List<String> keySet = getKeys( key, extension ,new HashMap<>(),locale);
+        List<String> keySet = getKeys( key, extension, new HashMap<>(), locale );
 
         for ( String prop : keySet ) {
-            List<String> value = (List<String>) getExtractionConfiguration( prop,config );
+            List<String> value = (List<String>) getExtractionConfiguration( prop, config );
             if ( value != null )
                 response.addAll( new ArrayList<>( value ) );
         }
@@ -45,8 +33,7 @@ public class ConfigService {
     }
 
 
-
-    private List<String> getKeys(String key, String extension, Map<String ,Object> configuration,String locale )
+    private List<String> getKeys( String key, String extension, Map<String, Object> configuration, String locale )
     {
         List<String> response = new ArrayList<>();
         if ( locale != null ) {
@@ -69,20 +56,23 @@ public class ConfigService {
         return response;
     }
 
-    @SuppressWarnings ("unchecked") public List<String> getValueList( String key,Map<String ,Object> configuration  )
+
+    @SuppressWarnings ( "unchecked")
+    public List<String> getValueList( String key, Map<String, Object> configuration )
     {
-        List<String> response = (List<String>) getExtractionConfiguration( key,configuration );
+        List<String> response = (List<String>) getExtractionConfiguration( key, configuration );
         if ( response == null )
             response = new ArrayList<>();
         return new ArrayList<>( response );
     }
 
-    public Object getExtractionConfiguration( String key,Map<String ,Object> configuration )
+
+    public Object getExtractionConfiguration( String key, Map<String, Object> configuration )
     {
         Object value = null;
-        Map<String,Object> map = (Map<String, Object>) configuration.get("configuration");
-        if ( map.containsKey(key)){
-            value = map.get(key);
+        Map<String, Object> map = (Map<String, Object>) configuration.get( "configuration" );
+        if ( map.containsKey( key ) ) {
+            value = map.get( key );
         }
         return value;
     }

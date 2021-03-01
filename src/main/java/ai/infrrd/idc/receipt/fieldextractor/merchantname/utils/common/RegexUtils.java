@@ -9,7 +9,7 @@ public class RegexUtils
      * @param regex The regex pattern to be checked
      * @return true is there is a regex pattern match else false
      */
-    public static boolean checkIfStringContainsRegexPattern(String input, String regex )
+    public static boolean checkIfStringContainsRegexPattern( String input, String regex )
     {
         PatternExtractor patternExtractor = new PatternExtractor( regex );
         return patternExtractor.isMatchedPatterns( input );

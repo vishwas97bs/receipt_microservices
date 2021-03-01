@@ -19,7 +19,7 @@ public class ResponseBuilder
     @Autowired
     private MessageBuilder messageBuilder;
 
-    public <T> ResponseEntity<ResponseObject> buildSuccessResponse(T data, String successCode )
+    public <T> ResponseEntity<ResponseObject> buildSuccessResponse( T data, String successCode )
     {
         ResponseObject<T> response = new ResponseObject<>();
 

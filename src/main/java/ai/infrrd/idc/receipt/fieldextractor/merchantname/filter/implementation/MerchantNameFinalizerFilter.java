@@ -14,13 +14,15 @@ import org.springframework.stereotype.Component;
 
 import java.util.*;
 
+
 @Component
-public class MerchantNameFinalizerFilter implements ExtractionFilter {
+public class MerchantNameFinalizerFilter implements ExtractionFilter
+{
     private static final Logger LOG = LoggerFactory.getLogger( MerchantNameFinalizerFilter.class );
 
 
     @Override
-    public List<ExtractedValue> filter(List<ExtractedValue> input, FieldExtractionRequest fieldExtractionRequest)
+    public List<ExtractedValue> filter( List<ExtractedValue> input, FieldExtractionRequest fieldExtractionRequest )
     {
         LOG.trace( "Entering filter method" );
         if ( input == null ) {
@@ -29,10 +31,10 @@ public class MerchantNameFinalizerFilter implements ExtractionFilter {
         }
         // If we have Google Vision/Existing Merchant extraction, we pick it as-is
         if ( !input.isEmpty() && ( input.get( 0 ).getOperation().equals( MerchantNameExtractorType.GOOGLE_VISION )
-                || input.get( 0 ).getOperation().equals( MerchantNameExtractorType.EXISTING_MERCHANT ) || input.get( 0 )
-                .getOperation().equals( MerchantNameExtractorType.BEST_GUESS_LOOKUP_BASED_MERCHANT_EXTRACTOR ) || input.get( 0 )
-                .getOperation().equals( MerchantNameExtractorType.TRAINING_BASED ) || input.get( 0 )
-                .getOperation().equals( MerchantNameExtractorType.CUSTOMER_KNOWN_MERCHANT ) ) ) {
+            || input.get( 0 ).getOperation().equals( MerchantNameExtractorType.EXISTING_MERCHANT )
+            || input.get( 0 ).getOperation().equals( MerchantNameExtractorType.BEST_GUESS_LOOKUP_BASED_MERCHANT_EXTRACTOR )
+            || input.get( 0 ).getOperation().equals( MerchantNameExtractorType.TRAINING_BASED )
+            || input.get( 0 ).getOperation().equals( MerchantNameExtractorType.CUSTOMER_KNOWN_MERCHANT ) ) ) {
             LOG.warn( "Returning the filter without any change to input" );
             return input;
         }
@@ -46,7 +48,6 @@ public class MerchantNameFinalizerFilter implements ExtractionFilter {
 
     /**
      * this method will apply rules to update confidence of candidate values in input
-     * @param input
      */
     private void updateConfidenceByOccurrence( List<ExtractedValue> input )
     {
@@ -60,7 +61,7 @@ public class MerchantNameFinalizerFilter implements ExtractionFilter {
                     if ( ( (String) val.getValue() ).equalsIgnoreCase( selectedVal ) ) {
                         // Should have higher confidence than the first line selector
                         double confidence = MerchantNameExtractionUtil.getConfidence( selectedVal,
-                                ConfidenceValueCollection.FIRST_LINE_BASED_MERCHANT_EXTRACTOR + .04, 0 );
+                            ConfidenceValueCollection.FIRST_LINE_BASED_MERCHANT_EXTRACTOR + .04, 0 );
                         LOG.trace( "Updating confidence of {} to {}", val.getValue(), confidence );
                         val.setConfidence( confidence );
                     }
@@ -103,10 +104,9 @@ public class MerchantNameFinalizerFilter implements ExtractionFilter {
      * @param list list of value where extractedVal need to be searched
      * @param fuzzy (defines weather to match fuzzily)
      * @param operationList (list of operation of matched value this value will be manipulated in this method)
-     * @return
      */
     private int checkValueExistenceCount( ExtractedValue extractedVal, List<ExtractedValue> list, boolean fuzzy,
-                                          List<String> operationList )
+        List<String> operationList )
     {
         LOG.trace( "Entering checkValueExistenceCount method" );
         String value = (String) extractedVal.getValue();
@@ -116,7 +116,7 @@ public class MerchantNameFinalizerFilter implements ExtractionFilter {
                 String val1 = value.replaceAll( " ", "" ).toLowerCase();
                 String val2 = ( (String) extVal.getValue() ).replaceAll( " ", "" ).toLowerCase();
                 int distance = StringUtils.getLevenshteinDistance( val1, val2,
-                        (int) Math.ceil( val1.length() * UtilConditions.THRESHOLD_LEVENSHTEIN ) );
+                    (int) Math.ceil( val1.length() * UtilConditions.THRESHOLD_LEVENSHTEIN ) );
 
                 if ( distance < 0 ) {
                     continue;
@@ -159,8 +159,6 @@ public class MerchantNameFinalizerFilter implements ExtractionFilter {
 
     /**
      * this method will return list of values with highest occurrence
-     * @param candidates
-     * @return
      */
     private List<String> updateHighestOccurrenceList( List<ExtractedValue> candidates )
     {
@@ -198,7 +196,7 @@ public class MerchantNameFinalizerFilter implements ExtractionFilter {
         LOG.trace( "Entering checkOperationAuthenticity method" );
         boolean response = true;
         if ( operationList.size() == 2
-                && ( operationList.contains( MerchantNameExtractorType.POSSIBLE_MERCHANT_NAME_BASED_ON_FONT_SIZE )
+            && ( operationList.contains( MerchantNameExtractorType.POSSIBLE_MERCHANT_NAME_BASED_ON_FONT_SIZE )
                 && operationList.contains( MerchantNameExtractorType.POSSIBLE_MERCHANT_NAME_FROM_TOP ) ) ) {
             //only first line based and size based extraction can not be used to evaluate candidate value above others
             response = false;

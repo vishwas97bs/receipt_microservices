@@ -11,23 +11,26 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.stream.Collectors;
 
+
 @Component
-public class CustomerKnownMerchantFilter implements ExtractionFilter {
+public class CustomerKnownMerchantFilter implements ExtractionFilter
+{
     private static final Logger LOG = LoggerFactory.getLogger( CustomerKnownMerchantFilter.class );
 
-    @Override public List<ExtractedValue> filter(List<ExtractedValue> input, FieldExtractionRequest fieldExtractionRequest )
+    @Override
+    public List<ExtractedValue> filter( List<ExtractedValue> input, FieldExtractionRequest fieldExtractionRequest )
     {
         LOG.trace( "Entering filter method" );
-        if (input == null || input.isEmpty() ) {
+        if ( input == null || input.isEmpty() ) {
             LOG.warn( "Input list found to be empty" );
             return input;
         }
-        return input.stream().sorted( (ExtractedValue value1,ExtractedValue value2)->{
-            if(value1.getOperation().equals( MerchantNameExtractorType.CUSTOMER_KNOWN_MERCHANT ))
+        return input.stream().sorted( ( ExtractedValue value1, ExtractedValue value2 ) -> {
+            if ( value1.getOperation().equals( MerchantNameExtractorType.CUSTOMER_KNOWN_MERCHANT ) )
                 return -1;
-            if(value2.getOperation().equals( MerchantNameExtractorType.CUSTOMER_KNOWN_MERCHANT ))
+            if ( value2.getOperation().equals( MerchantNameExtractorType.CUSTOMER_KNOWN_MERCHANT ) )
                 return 1;
             return 0;
-        } ).collect( Collectors.toList());
+        } ).collect( Collectors.toList() );
     }
 }

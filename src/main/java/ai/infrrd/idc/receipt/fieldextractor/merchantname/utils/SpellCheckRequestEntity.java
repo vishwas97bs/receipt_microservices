@@ -28,7 +28,6 @@ public class SpellCheckRequestEntity {
      * @param limit limit
      * @param type type
      * @param items items
-     * @param ocrConfidence
      */
     public SpellCheckRequestEntity( Double accuracy, Integer limit, String type, List<String> items, Double ocrConfidence )
     {

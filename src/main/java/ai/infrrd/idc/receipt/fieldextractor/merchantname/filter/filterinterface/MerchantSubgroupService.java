@@ -5,6 +5,6 @@ import java.util.Map;
 
 public interface MerchantSubgroupService {
 
-    public List<Map<String, Object>> getSubgroups(String merchantName );
+    List<Map<String, Object>> getSubgroups(String merchantName);
 
 }

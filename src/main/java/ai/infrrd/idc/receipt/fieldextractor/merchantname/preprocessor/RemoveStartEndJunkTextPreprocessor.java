@@ -12,8 +12,8 @@ public class RemoveStartEndJunkTextPreprocessor implements TextPreprocessor
     @Override
     public String preProcessText(String input, FieldExtractionRequest fieldExtractionRequest, String fieldName )
     {
-        String response = "";
-        String lines[] = input.split( "[\r\n]" );
+        String response;
+        String[] lines = input.split( "[\r\n]" );
         if ( lines.length > 0 ) {
             String firstLine = lines[0];
             String firstLineReplacement = getReplacement( firstLine );

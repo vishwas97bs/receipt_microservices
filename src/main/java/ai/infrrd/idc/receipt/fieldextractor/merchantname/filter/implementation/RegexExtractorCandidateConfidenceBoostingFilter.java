@@ -14,8 +14,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+
 @Component
-public class RegexExtractorCandidateConfidenceBoostingFilter implements ExtractionFilter {
+public class RegexExtractorCandidateConfidenceBoostingFilter implements ExtractionFilter
+{
 
     private static final Logger LOG = LoggerFactory.getLogger( RegexExtractorCandidateConfidenceBoostingFilter.class );
     private static final String BOOST_REGEX_MATCH = "enableRegexMatchBoost";
@@ -23,7 +25,7 @@ public class RegexExtractorCandidateConfidenceBoostingFilter implements Extracti
 
 
     @Override
-    public List<ExtractedValue> filter(List<ExtractedValue> input, FieldExtractionRequest fieldExtractionRequest )
+    public List<ExtractedValue> filter( List<ExtractedValue> input, FieldExtractionRequest fieldExtractionRequest )
     {
         LOG.trace( "List before filteration: {}", input );
 
@@ -34,12 +36,10 @@ public class RegexExtractorCandidateConfidenceBoostingFilter implements Extracti
             return Collections.emptyList();
         }
 
-        List<ExtractedValue> vicinityMatchList = getExtractedValueByOperation( input,
-                FieldMatch.VICINITY_MATCH.toString() );
+        List<ExtractedValue> vicinityMatchList = getExtractedValueByOperation( input, FieldMatch.VICINITY_MATCH.toString() );
         List<ExtractedValue> withoutVicinityMatchList = getExtractedValueByOperation( input,
-                FieldMatch.REG_WITHOUT_VIC.toString() );
-        List<ExtractedValue> regexMatchList = getExtractedValueByOperation( input,
-                FieldMatch.REG_EX_MATCH.toString() );
+            FieldMatch.REG_WITHOUT_VIC.toString() );
+        List<ExtractedValue> regexMatchList = getExtractedValueByOperation( input, FieldMatch.REG_EX_MATCH.toString() );
 
         //        if ( withoutVicinityMatchList.size() == 1 ) {
         //            boostConfidence( withoutVicinityMatchList );
@@ -48,11 +48,11 @@ public class RegexExtractorCandidateConfidenceBoostingFilter implements Extracti
         Boolean boostRegexMatch = Boolean.parseBoolean( "true" );
         LOG.info( "Enable Boost Regex Match: {}", boostRegexMatch );
         if ( boostRegexMatch && regexMatchList.size() == 1 && vicinityMatchList.isEmpty()
-                && withoutVicinityMatchList.isEmpty() ) {
+            && withoutVicinityMatchList.isEmpty() ) {
             boostConfidence( regexMatchList );
         }
         if ( boostRegexMatch && !withoutVicinityMatchList.isEmpty() && vicinityMatchList.isEmpty()
-                && regexMatchList.isEmpty() ) {
+            && regexMatchList.isEmpty() ) {
             boostConfidence( withoutVicinityMatchList );
         }
         LOG.trace( "List after filteration: {}", response );
@@ -69,10 +69,11 @@ public class RegexExtractorCandidateConfidenceBoostingFilter implements Extracti
         LOG.trace( "Finishing boostConfidence method" );
     }
 
+
     public static List<ExtractedValue> getExtractedValueByOperation( List<ExtractedValue> list, String operation )
     {
         LOG.trace( "Entering getExtractedValueByOperation method" );
-        List<ExtractedValue> evList = null;
+        List<ExtractedValue> evList;
 
         if ( list == null || list.isEmpty() ) {
             LOG.error( "The list cannot be empty / null\nFound: {}", operation );

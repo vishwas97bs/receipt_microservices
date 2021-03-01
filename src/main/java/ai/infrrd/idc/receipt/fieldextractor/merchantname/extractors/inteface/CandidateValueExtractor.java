@@ -7,6 +7,5 @@ import java.util.List;
 import java.util.Map;
 
 public interface CandidateValueExtractor {
-
-    public List<ExtractedValue> extractValue(FieldExtractionRequest feRequest , String fieldName, Map<String,Object> config);
+    List<ExtractedValue> extractValue(FieldExtractionRequest feRequest, String fieldName, Map<String, Object> config);
 }

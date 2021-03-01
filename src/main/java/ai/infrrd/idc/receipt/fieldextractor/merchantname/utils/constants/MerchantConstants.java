@@ -1,6 +1,5 @@
 package ai.infrrd.idc.receipt.fieldextractor.merchantname.utils.constants;
 
-import ai.infrrd.idc.receipt.fieldextractor.merchantname.utils.common.MerchantNameExtractionUtil;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -84,7 +83,6 @@ public class MerchantConstants {
             // google for language codes and refer map-values from gimletConfiguration.json/banned_languages_regex
         }
 
-        ;
     };
 
     public static final Map<String, String> CUSTOM_LANGUAGE_DATE_REGEX = new HashMap<String, String>()

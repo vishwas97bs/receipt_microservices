@@ -13,7 +13,7 @@ public class MessageBuilder
 
         String message = ApplicationMessages.getMessage( code );
 
-        if ( message == null && message.isEmpty() ) {
+        if ( message == null || message.isEmpty() ) {
             message = "default message";
         }
         return message;

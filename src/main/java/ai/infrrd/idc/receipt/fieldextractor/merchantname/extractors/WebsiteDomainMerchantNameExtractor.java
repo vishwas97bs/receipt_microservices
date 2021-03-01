@@ -10,6 +10,7 @@ import ai.infrrd.idc.receipt.fieldextractor.merchantname.utils.constants.Merchan
 import ai.infrrd.idc.receipt.fieldextractor.merchantname.utils.constants.MerchantNameExtractorType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -24,9 +25,30 @@ public class WebsiteDomainMerchantNameExtractor implements CandidateValueExtract
     private static final String WEBSITE_DOMAIN_SEPERATOR = "\\.";
     private static final String WEBSITE_PARTS_SEPERATOR = "[-\\.]";
     private static final Logger LOG = LoggerFactory.getLogger( WebsiteDomainMerchantNameExtractor.class );
-    private MerchantNameExtractionUtil merchantNameExtractionUtil = MerchantNameExtractionUtil.getInstance();
-    private Utils utils = Utils.getInstance();
-    private ConfigService configService = ConfigService.getInstance();
+    private MerchantNameExtractionUtil merchantNameExtractionUtil;
+    private Utils utils;
+    private ConfigService configService;
+
+    @Autowired
+    public void setConfigService( ConfigService configService )
+    {
+        this.configService = configService;
+    }
+
+
+    @Autowired
+    public void setMerchantNameExtractionUtil( MerchantNameExtractionUtil merchantNameExtractionUtil )
+    {
+        this.merchantNameExtractionUtil = merchantNameExtractionUtil;
+    }
+
+
+    @Autowired
+    public void setUtils( Utils utils )
+    {
+        this.utils = utils;
+    }
+
 
     /**
      * Extracts the website domain from a given text by identifying the first
@@ -43,13 +65,18 @@ public class WebsiteDomainMerchantNameExtractor implements CandidateValueExtract
      *            Text to extract domain from
      * @return Domain name if found, null otherwise
      */
-    private  List<ExtractedValue> extractWebsiteDomain(List<String> text, FieldExtractionRequest data, Map<String,Object> config )
+
+
+    private List<ExtractedValue> extractWebsiteDomain( List<String> text, FieldExtractionRequest data,
+        Map<String, Object> config )
     {
         List<ExtractedValue> response = new ArrayList<>();
         List<String> reOrderedText = merchantNameExtractionUtil.reorder( text );
-        List<String> regexList = configService.getRegexList( MerchantConstants.MERCHANT_NAME_WEBSITE, config,null);
-        String superDomains = (String) configService.getExtractionConfiguration( MerchantConstants.MERCHANT_NAME_WEBSITE_DOMAINS,config );
-        List<String> secondLevelDomains = configService.getValueList( MerchantConstants.MERCHANT_NAME_WEBSITE_SECOND_LEVEL_DOMAINS,config );
+        List<String> regexList = configService.getRegexList( MerchantConstants.MERCHANT_NAME_WEBSITE, config, null );
+        String superDomains = (String) configService
+            .getExtractionConfiguration( MerchantConstants.MERCHANT_NAME_WEBSITE_DOMAINS, config );
+        List<String> secondLevelDomains = configService
+            .getValueList( MerchantConstants.MERCHANT_NAME_WEBSITE_SECOND_LEVEL_DOMAINS, config );
         superDomains = superDomains + "|" + superDomains.toUpperCase();
         double diff = ConfidenceValueCollection.WEBSITE_BASED_MERCHANT_EXTRACTOR
             - ConfidenceValueCollection.FIRST_LINE_BASED_MERCHANT_EXTRACTOR;
@@ -62,18 +89,17 @@ public class WebsiteDomainMerchantNameExtractor implements CandidateValueExtract
                 List<RegexMatchInfo> regexMatchInfoList = regexPattern.matchedPatterns( str );
 
                 for ( RegexMatchInfo regexMatchInfo : regexMatchInfoList ) {
-                    String value = null;
-                    value = stripSuperDomain(
-                        new PatternExtractor( regex ).matchedPatterns( regexMatchInfo.getMatchedString(), 1 ).get( 0 )
-                            .getMatchedString(), superDomains, secondLevelDomains );
+                    String value;
+                    value = stripSuperDomain( new PatternExtractor( regex )
+                        .matchedPatterns( regexMatchInfo.getMatchedString(), 1 ).get( 0 ).getMatchedString(), superDomains,
+                        secondLevelDomains );
                     if ( value != null && merchantNameExtractionUtil.isPossibleWebsite( value ) ) {
                         double itemConfidence = MerchantNameExtractionUtil.getConfidence( value, confidence, 0 );
                         value = value.replaceAll( WEBSITE_PARTS_SEPERATOR, " " );
                         ExtractedValue extractedMerchantName = new ExtractedValue( value,
                             MerchantNameExtractorType.WEBSITE_DOMAIN, null, regexMatchInfo.getStartindex(), itemConfidence );
-                        extractedMerchantName.setMatchedValue(
-                            new PatternExtractor( regex ).matchedPatterns( regexMatchInfo.getMatchedString(), 1 ).get( 0 )
-                                .getMatchedString() );
+                        extractedMerchantName.setMatchedValue( new PatternExtractor( regex )
+                            .matchedPatterns( regexMatchInfo.getMatchedString(), 1 ).get( 0 ).getMatchedString() );
                         response.add( extractedMerchantName );
                         LOG.debug( "Extracted Value : {}", extractedMerchantName );
                     }
@@ -85,7 +111,7 @@ public class WebsiteDomainMerchantNameExtractor implements CandidateValueExtract
     }
 
 
-    private static String stripSuperDomain(String value, String superDomains, List<String> secondLevelDomains )
+    private static String stripSuperDomain( String value, String superDomains, List<String> secondLevelDomains )
     {
         String response = null;
         String[] parts = value.split( WEBSITE_DOMAIN_SEPERATOR );
@@ -101,8 +127,8 @@ public class WebsiteDomainMerchantNameExtractor implements CandidateValueExtract
                     if ( parts[parts.length - 1 - i] != null )
                         val2.insert( 0, parts[parts.length - 1 - i] );
                 }
-                int distance = LevenstheinDistance
-                    .getLevenshteinDistance( val1.toString(), val2.toString(), (int) Math.ceil( val2.length() * .3 ) );
+                int distance = LevenstheinDistance.getLevenshteinDistance( val1.toString(), val2.toString(),
+                    (int) Math.ceil( val2.length() * .3 ) );
                 if ( distance < 0 )
                     continue;
                 else {
@@ -130,22 +156,22 @@ public class WebsiteDomainMerchantNameExtractor implements CandidateValueExtract
 
 
     @Override
-    public List<ExtractedValue> extractValue(FieldExtractionRequest feRequest, String fieldName, Map<String,Object> config)
+    public List<ExtractedValue> extractValue( FieldExtractionRequest feRequest, String fieldName, Map<String, Object> config )
     {
 
         String ocrText = feRequest.getOcrData().getRawText();
         List<String> text = utils.getStringLines( ocrText );
-        List<ExtractedValue> extractedValueList = new ArrayList<>();
+        List<ExtractedValue> extractedValueList;
         // Remove obvious bad lines of text
         List<String> cleanLines = merchantNameExtractionUtil.filter( lightClean( text ) );
         LOG.trace( "Got cleaned Lines : {}", cleanLines );
         if ( cleanLines.size() == 0 ) {
             // Couldn't find any useful lines
-            LOG.error( "No Text input", feRequest.getRequestId() );
+            LOG.error( "No Text input {} ", feRequest.getRequestId() );
             return null;
         } else {
             // Try to extract a website domain from the text
-            extractedValueList = extractWebsiteDomain( cleanLines, feRequest,config );
+            extractedValueList = extractWebsiteDomain( cleanLines, feRequest, config );
 
             for ( ExtractedValue value : extractedValueList ) {
 
@@ -153,8 +179,8 @@ public class WebsiteDomainMerchantNameExtractor implements CandidateValueExtract
                     if ( extractedValueList.indexOf( toCompare ) == extractedValueList.indexOf( value ) ) {
                         continue;
                     } else {
-                        if ( ( (String) value.getValue() ).contains( (String) toCompare.getValue() ) && !value.getValue()
-                            .equals( toCompare.getValue() ) ) {
+                        if ( ( (String) value.getValue() ).contains( (String) toCompare.getValue() )
+                            && !value.getValue().equals( toCompare.getValue() ) ) {
                             value.setConfidence( value.getConfidence() - .1 );
                             break;
                         }
@@ -168,7 +194,7 @@ public class WebsiteDomainMerchantNameExtractor implements CandidateValueExtract
     }
 
 
-    private List<String> lightClean(List<String> originalList )
+    private List<String> lightClean( List<String> originalList )
     {
         List<String> finalList = new ArrayList<>();
         for ( String str : originalList ) {
@@ -180,7 +206,7 @@ public class WebsiteDomainMerchantNameExtractor implements CandidateValueExtract
     }
 
 
-    private String lightCleanUp(String str )
+    private String lightCleanUp( String str )
     {
         return str.replaceAll( "[^\\w.\\-'’ü&:!@()]+", " " ).trim();
     }

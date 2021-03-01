@@ -21,7 +21,7 @@ public class LocaleService implements InitializingBean {
 
 
     @Override
-    public void afterPropertiesSet() throws Exception {
+    public void afterPropertiesSet() {
         hashMap.put( "eng", "en" );
         hashMap.put( "spa", "es" );
         hashMap.put( "fra", "fr" );

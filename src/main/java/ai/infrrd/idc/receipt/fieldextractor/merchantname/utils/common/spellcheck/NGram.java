@@ -75,7 +75,7 @@ public class NGram
     }
 
 
-    public NGram(String nGramStr, Integer nGramSize, Double line, Double score )
+    public NGram( String nGramStr, Integer nGramSize, Double line, Double score )
     {
         this.nGramStr = nGramStr;
         this.nGramSize = nGramSize;

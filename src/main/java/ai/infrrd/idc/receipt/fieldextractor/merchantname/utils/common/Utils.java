@@ -1,18 +1,12 @@
 package ai.infrrd.idc.receipt.fieldextractor.merchantname.utils.common;
 
+import org.springframework.stereotype.Component;
+
 import java.util.Arrays;
 import java.util.List;
 
+@Component
 public class Utils {
-
-    public static  Utils utils = null;
-
-    public static Utils getInstance(){
-        if (utils==null){
-            utils = new Utils();
-        }
-        return utils;
-    }
 
     /**
      * Splits a text block into lines

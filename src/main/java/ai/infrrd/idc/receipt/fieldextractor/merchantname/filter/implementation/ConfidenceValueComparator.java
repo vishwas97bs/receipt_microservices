@@ -1,7 +1,6 @@
 package ai.infrrd.idc.receipt.fieldextractor.merchantname.filter.implementation;
 
 import ai.infrrd.idc.receipt.fieldextractor.merchantname.utils.common.ExtractedValue;
-import org.springframework.stereotype.Component;
 
 import java.util.Comparator;
 

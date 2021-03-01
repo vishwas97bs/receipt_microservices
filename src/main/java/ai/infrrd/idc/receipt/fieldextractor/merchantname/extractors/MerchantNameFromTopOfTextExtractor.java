@@ -15,6 +15,7 @@ import ai.infrrd.idc.receipt.fieldextractor.merchantname.utils.constants.Merchan
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -22,30 +23,41 @@ import java.util.*;
 
 
 @Component
-public class MerchantNameFromTopOfTextExtractor implements CandidateValueExtractor, InitializingBean
+public class MerchantNameFromTopOfTextExtractor implements CandidateValueExtractor
 {
 
     private static final Logger LOG = LoggerFactory.getLogger( MerchantNameFromTopOfTextExtractor.class );
 
-    private static  WordLookupClient WORD_LOOKUP_CLIENT = null;
+    private  WordLookupClient WORD_LOOKUP_CLIENT ;
 
-    private MerchantNameExtractionUtil merchantNameExtractionUtil = MerchantNameExtractionUtil.getInstance();
+    private MerchantNameExtractionUtil merchantNameExtractionUtil;
 
-    private Utils utils= Utils.getInstance();
+    private Utils utils;
 
-    @Value("${spellcheck-server}")
-    private String spellCheckUrl;
-
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        if ( WORD_LOOKUP_CLIENT == null){
-            WORD_LOOKUP_CLIENT = new WordLookupClient(
-                    spellCheckUrl );
-        }
+    @Autowired
+    public void setMerchantNameExtractionUtil( MerchantNameExtractionUtil merchantNameExtractionUtil )
+    {
+        this.merchantNameExtractionUtil = merchantNameExtractionUtil;
     }
 
+    @Autowired
+    public void setWORD_LOOKUP_CLIENT(WordLookupClient WORD_LOOKUP_CLIENT) {
+        this.WORD_LOOKUP_CLIENT = WORD_LOOKUP_CLIENT;
+    }
+
+    @Autowired
+    public void setUtils( Utils utils )
+    {
+        this.utils = utils;
+    }
+
+    @Value ( "${spellcheck-server}")
+    private String spellCheckUrl;
+
+
+
     @Override
-    public List<ExtractedValue> extractValue(FieldExtractionRequest feRequest, String fieldName,Map<String,Object> config )
+    public List<ExtractedValue> extractValue( FieldExtractionRequest feRequest, String fieldName, Map<String, Object> config )
     {
 
         String ocrText = feRequest.getOcrData().getRawText();
@@ -117,7 +129,7 @@ public class MerchantNameFromTopOfTextExtractor implements CandidateValueExtract
     }
 
 
-    public static Map<String, Map<String, Object>> wordLookup(List<String> lines )
+    public  Map<String, Map<String, Object>> wordLookup( List<String> lines )
     {
         LOG.debug( "Fetching merchant name suggestions for {}.", lines );
         try {

@@ -1,6 +1,7 @@
 package ai.infrrd.idc.receipt.fieldextractor.merchantname.exception;
 
-public class InvalidConfigurationsException extends RuntimeException{
+public class InvalidConfigurationsException extends RuntimeException
+{
     private static final long serialVersionUID = 1L;
 
 

@@ -70,8 +70,8 @@ public class PatternExtractor
 
     private String processInputString(String input )
     {
-        StringBuffer output = new StringBuffer();
-        String lines[] = input.split( "\\\\r\\\\n|\\r\\n|\n" );
+        StringBuilder output = new StringBuilder();
+        String[] lines = input.split( "\\\\r\\\\n|\\r\\n|\n" );
         if ( lines.length == 1 || input.isEmpty() ) {
             return input;
         }

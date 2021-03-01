@@ -1,6 +1,3 @@
-/**
- *
- */
 package ai.infrrd.idc.receipt.fieldextractor.merchantname.preprocessor;
 
 

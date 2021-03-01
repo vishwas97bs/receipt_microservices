@@ -32,7 +32,7 @@ public class FilterService {
 
     public  List<ExtractedValue> filterProcess(List<ExtractedValue> values, FieldExtractionRequest fieldExtractionRequest){
         List<ExtractedValue> filteredValue = regexExtractorCandidateConfidenceBoostingFilter.filter(values,fieldExtractionRequest);
-        filteredValue = removeJunkValues.filter(values,fieldExtractionRequest);
+        filteredValue = removeJunkValues.filter(filteredValue,fieldExtractionRequest);
         filteredValue = confidenceValueSortFilter.filter(filteredValue,fieldExtractionRequest);
         filteredValue = customerKnownMerchantFilter.filter(filteredValue,fieldExtractionRequest);
         filteredValue = merchantNameFinalizerFilter.filter(filteredValue,fieldExtractionRequest);

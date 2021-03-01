@@ -8,7 +8,7 @@ public class RegexMatchInfo
     int groupCount;
 
 
-    public RegexMatchInfo(String matchedString, int startindex, int endIndex, int groupCount )
+    public RegexMatchInfo( String matchedString, int startindex, int endIndex, int groupCount )
     {
         this.matchedString = matchedString;
         this.startindex = startindex;
@@ -73,7 +73,7 @@ public class RegexMatchInfo
 
 
     @Override
-    public boolean equals(Object o )
+    public boolean equals( Object o )
     {
         if ( this == o )
             return true;

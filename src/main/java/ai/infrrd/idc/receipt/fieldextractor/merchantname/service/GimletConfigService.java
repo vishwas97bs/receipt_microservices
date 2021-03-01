@@ -27,21 +27,21 @@ public class GimletConfigService implements InitializingBean {
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        MongoConnector.initializeMongoUrl(mongoServer);
+//        MongoConnector.initializeMongoUrl(mongoServer);
     }
 
     public Map<String, Object> getGimletConfig(){
         ObjectMapper mapper = new ObjectMapper();
-        DBCollection gimletConfiguration = null;
+        DBCollection gimletConfiguration;
         gimletConfiguration = MongoConnector.getDB( dbName)
                 .getCollection(MerchantConstants.GIMLET_CONFIGURATION);
-        Object configObject = null;
+        Object configObject;
         if (gimletConfiguration!=null){
              configObject = gimletConfiguration.findOne(MerchantConstants.RECEIPT);
         }else{
             return null;
         }
-        JSONObject configJsonObj = null;
+        JSONObject configJsonObj;
         Map<String,Object> map = null;
         try {
             configJsonObj = mapper.readValue(configObject.toString(), JSONObject.class);

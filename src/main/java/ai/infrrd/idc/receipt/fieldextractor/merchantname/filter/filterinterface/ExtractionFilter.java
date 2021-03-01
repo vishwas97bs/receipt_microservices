@@ -6,6 +6,6 @@ import ai.infrrd.idc.receipt.fieldextractor.merchantname.utils.common.ExtractedV
 import java.util.List;
 
 public interface ExtractionFilter {
-    public List<ExtractedValue> filter(List<ExtractedValue> input, FieldExtractionRequest fieldExtractionRequest);
+    List<ExtractedValue> filter(List<ExtractedValue> input, FieldExtractionRequest fieldExtractionRequest);
 
 }

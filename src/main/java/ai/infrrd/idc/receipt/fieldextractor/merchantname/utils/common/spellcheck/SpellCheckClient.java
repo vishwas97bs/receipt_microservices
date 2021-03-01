@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public class SpellCheckClient {
-    SpellCheckClientInterface spellCheckClientInterface = null;
+    SpellCheckClientInterface spellCheckClientInterface;
 
 
     /**
@@ -44,8 +44,8 @@ public class SpellCheckClient {
             if ( response.isSuccessful() ) {
                 return response.body();
             } else {
-                throw new SpellCheckException( String.format( "Error while fetching entries from SpellCheck API: %s",
-                        new String( response.errorBody().bytes() ) ) );
+                    throw new SpellCheckException( String.format( "Error while fetching entries from SpellCheck API: %s",
+                            new String(response.errorBody() != null ? response.errorBody().bytes() : new byte[0]) ) );
             }
         } catch ( IOException e ) {
             throw new SpellCheckException( "Error occurred while connecting to SpellCheck service", e );
@@ -67,7 +67,7 @@ public class SpellCheckClient {
                 return response.body();
             } else {
                 throw new SpellCheckException( String.format( "Error while fetching entries from SpellCheck API: %s",
-                        new String( response.errorBody().bytes() ) ) );
+                        new String(response.errorBody() != null ? response.errorBody().bytes() : new byte[0]) ) );
             }
         } catch ( IOException e ) {
             throw new SpellCheckException( "Error occurred while connecting to SpellCheck service", e );
@@ -90,7 +90,7 @@ public class SpellCheckClient {
                 return response.body();
             } else {
                 throw new SpellCheckException( String.format( "Error while fetching entries from SpellCheck API: %s",
-                        new String( response.errorBody().bytes() ) ) );
+                        new String(response.errorBody() != null ? response.errorBody().bytes() : new byte[0]) ) );
             }
         } catch ( IOException e ) {
             throw new SpellCheckException( "Error occurred while connecting to SpellCheck Locale detection service", e );
@@ -112,7 +112,7 @@ public class SpellCheckClient {
                 return response.body();
             } else {
                 throw new SpellCheckException( String.format( "Error while fetching entries from SpellCheck API: %s",
-                        new String( response.errorBody().bytes() ) ) );
+                        new String(response.errorBody() != null ? response.errorBody().bytes() : new byte[0]) ) );
             }
         } catch ( IOException e ) {
             throw new SpellCheckException( "Error occurred while connecting to SpellCheck Locale detection service", e );

@@ -1,7 +1,5 @@
 package ai.infrrd.idc.receipt.fieldextractor.merchantname.config;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
@@ -13,7 +11,7 @@ import java.util.Map;
 
 
 @Configuration
-@PropertySource( value = "classpath:codes.properties", name = "codes.props")
+@PropertySource ( value = "classpath:codes.properties", name = "codes.props")
 public class ApplicationMessages
 {
 
@@ -21,8 +19,6 @@ public class ApplicationMessages
     Environment env;
 
     private static Map<String, String> codesAndMessages;
-
-    private static final Logger logger = LoggerFactory.getLogger( ApplicationMessages.class );
 
     private static void setCodesAndMessages( Map<String, String> codesAndMessages )
     {

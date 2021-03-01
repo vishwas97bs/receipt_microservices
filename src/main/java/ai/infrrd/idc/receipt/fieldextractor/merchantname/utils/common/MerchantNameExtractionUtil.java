@@ -8,39 +8,25 @@ import ai.infrrd.idc.receipt.fieldextractor.merchantname.utils.constants.UtilCon
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import java.util.*;
 
-
+@Component
 public class MerchantNameExtractionUtil
 {
-    private static final Logger LOG = LoggerFactory.getLogger( MerchantNameExtractionUtil.class );
-    private static  DBCollection STOPWORDS_COLLECTION = null;
-    private static  Set<String> STOPWORDS = null;
+    private static DBCollection STOPWORDS_COLLECTION = null;
+    private static Set<String> STOPWORDS = null;
     public static final boolean ENABLE_SEQUENTIAL_LOOKUP = true;
     public static MerchantNameExtractionUtil merchantNameExtractionUtil = null;
 
-    public static void initializeMongo(String mongoUrl) {
-        if ( STOPWORDS_COLLECTION == null)
-        {
-            STOPWORDS_COLLECTION = MongoConnector.getDB( mongoUrl)
-                    .getCollection( Constants.STOP_WORDS_COLLECTION );
+    public static void initializeMongo( String mongoUrl )
+    {
+        if ( STOPWORDS_COLLECTION == null ) {
+            STOPWORDS_COLLECTION = MongoConnector.getDB( mongoUrl ).getCollection( Constants.STOP_WORDS_COLLECTION );
         }
 
         STOPWORDS = loadStopwords();
-    }
-
-    private MerchantNameExtractionUtil(){
-
-    }
-
-    public  static MerchantNameExtractionUtil getInstance(){
-        if (merchantNameExtractionUtil == null){
-            merchantNameExtractionUtil = new MerchantNameExtractionUtil();
-        }
-           return  merchantNameExtractionUtil;
     }
 
 
@@ -50,32 +36,22 @@ public class MerchantNameExtractionUtil
      * @return Set of merchant name stopwords
      */
     private static Set<String> loadStopwords()
-    { // TODO make use of morphia and
-        // move these to service
-        // layer
-        DBObject merchantStopwords = STOPWORDS_COLLECTION.findOne( new BasicDBObject( "_id", "merchant" ) ); // TODO
-        // remove
-        // all
-        // hardcoded
-        // vals
+    {
+        DBObject merchantStopwords = STOPWORDS_COLLECTION.findOne( new BasicDBObject( "_id", "merchant" ) );
         if ( merchantStopwords != null ) {
-            return new HashSet<>( lowercase( (List<String>) merchantStopwords.get( "stopwords" ) ) );// TODO
-            // remove
-            // all
-            // hardcoded
-            // vals
+            return new HashSet<>( lowercase( (List<String>) merchantStopwords.get( "stopwords" ) ) );
         }
         return new HashSet<>();
     }
 
 
-    public  boolean isStopword( String word )
+    private boolean isStopword(String word)
     {
         for ( String stopword : STOPWORDS ) {
             if ( stopword.length() <= UtilConditions.MIN_LENGTH_LEVENSHTEIN && stopword.equals( word ) ) {
                 return true;
-            } else if ( stopword.length() > UtilConditions.MIN_LENGTH_LEVENSHTEIN && ( LevenstheinDistance
-                .getLevenshteinDistance( word, stopword,
+            } else if ( stopword.length() > UtilConditions.MIN_LENGTH_LEVENSHTEIN
+                && ( LevenstheinDistance.getLevenshteinDistance( word, stopword,
                     (int) Math.ceil( stopword.length() * UtilConditions.THRESHOLD_LEVENSHTEIN ) ) >= 0 )
                 && word.length() == stopword.length() ) {
                 return true;
@@ -91,7 +67,7 @@ public class MerchantNameExtractionUtil
      * @param name Name to check
      * @return true if name matches criteria, false otherwise
      */
-    public  boolean isPossibleWebsite( String name )
+    public boolean isPossibleWebsite( String name )
     {
         // Check if text is at least 3 characters long
         if ( name.trim().length() < 2 ) {
@@ -102,11 +78,7 @@ public class MerchantNameExtractionUtil
             return false;
         }
         // Check if at least 50% of the name is letters
-        if ( 100 * countLetters( name ) / (double) name.length() < 50 ) {
-            return false;
-        }
-
-        return true;
+        return !(100 * countLetters(name) / (double) name.length() < 50);
     }
 
 
@@ -116,7 +88,7 @@ public class MerchantNameExtractionUtil
      * @param name Name to check
      * @return true if name matches criteria, false otherwise
      */
-    public  boolean isPossibleName( String name )
+    private boolean isPossibleName(String name)
     {
         // Check if text is at least 3 characters long
         if ( name.trim().length() < 3 ) {
@@ -137,14 +109,11 @@ public class MerchantNameExtractionUtil
             avgWrdLen += part.length();
         }
         avgWrdLen = avgWrdLen / potentialWordParts.length;
-        if ( avgWrdLen <= 2 ) {
-            return false;
-        }
-        return true;
+        return !(avgWrdLen <= 2);
     }
 
 
-    public  List<String> clean(List<String> originalList )
+    public List<String> clean( List<String> originalList )
     {
         List<String> finalList = new ArrayList<>();
         for ( String str : originalList ) {
@@ -154,7 +123,7 @@ public class MerchantNameExtractionUtil
     }
 
 
-    public  String cleanUp(String str )
+    private String cleanUp(String str)
     {
         String regex = "[^\\w\\p{Lo}\\p{IsHan}&#\\*]+";
 
@@ -165,7 +134,7 @@ public class MerchantNameExtractionUtil
     }
 
 
-    public  List<String> lightClean(List<String> originalList )
+    public List<String> lightClean( List<String> originalList )
     {
         List<String> finalList = new ArrayList<>();
         for ( String str : originalList ) {
@@ -177,7 +146,7 @@ public class MerchantNameExtractionUtil
     }
 
 
-    public  String lightCleanUp(String str )
+    private String lightCleanUp(String str)
     {
         String regex = "[^\\w.\\-'’ü&!@()]+";
         if ( RegexUtils.checkIfStringContainsRegexPattern( str, "\\p{InCyrillic}" ) ) {
@@ -187,11 +156,11 @@ public class MerchantNameExtractionUtil
     }
 
 
-    public static List<String> filter(List<String> originalList )
+    public  List<String> filter( List<String> originalList )
     {
         List<String> finalList = new ArrayList<>();
         for ( String str : originalList ) {
-            if ( !merchantNameExtractionUtil.filtered( str ) ) {
+            if ( !filtered( str ) ) {
                 finalList.add( str );
             }
         }
@@ -199,16 +168,13 @@ public class MerchantNameExtractionUtil
     }
 
 
-    public  boolean filtered( String str )
+    private boolean filtered(String str)
     {
-        if ( str.trim().length() < UtilConditions.THRESHOLD_LENGTH ) {
-            return true;
-        }
-        return false;
+        return str.trim().length() < UtilConditions.THRESHOLD_LENGTH;
     }
 
 
-    public  List<String> reorder(List<String> originalList )
+    public List<String> reorder( List<String> originalList )
     {
         List<String> finalList = new ArrayList<>();
         int size = originalList.size();
@@ -223,7 +189,7 @@ public class MerchantNameExtractionUtil
     }
 
 
-    public  List<String> nGrammify(String str, String separator, int length )
+    public List<String> nGrammify( String str, String separator, int length )
     {
         List<String> output = new ArrayList<>();
         String[] strParts = str.split( " " );
@@ -244,7 +210,7 @@ public class MerchantNameExtractionUtil
     }
 
 
-    public  String getCleanText(String str )
+    public String getCleanText( String str )
     {
         String output = null;
         String[] strParts = str.split( " " );
@@ -275,13 +241,10 @@ public class MerchantNameExtractionUtil
     /**
      * Returns all the n grams of the specified size and lesser till size of 1 after removing the stop words and white spaces
      * @param lines sentence
-     * @param maxLength
-     * @param minLength
      * @return n-gram List
      */
-    public  List<NGram> getNGrams(List<String[]> lines, int maxLength, int minLength )
+    public List<NGram> getNGrams( List<String[]> lines, int maxLength, int minLength )
     {
-
         List<NGram> response = new ArrayList<>();
 
         double lineConfidence = ConfidenceValueCollection.EXISTING_MERCHANT_LIST_EXTRACTOR;
@@ -294,7 +257,7 @@ public class MerchantNameExtractionUtil
                 existenceCheck = new HashSet<>();
             }
             lineWiseNGrams.put( i, existenceCheck );
-            boolean rev = ( i % 2 > 0 ) && !ENABLE_SEQUENTIAL_LOOKUP ? true : false;
+            boolean rev = (i % 2 > 0) && !ENABLE_SEQUENTIAL_LOOKUP;
 
             int nGramLength = maxLength;
             while ( nGramLength >= minLength ) {
@@ -307,7 +270,7 @@ public class MerchantNameExtractionUtil
                     if ( !lineIndexes.contains( lineIndx ) )
                         lineIndexes.add( lineIndx );
                 } else {
-                    int lineIndx = ENABLE_SEQUENTIAL_LOOKUP == true ? i : i / 2;
+                    int lineIndx = ENABLE_SEQUENTIAL_LOOKUP ? i : i / 2;
                     tempList = lines.get( lineIndx );
                     if ( !lineIndexes.contains( lineIndx ) )
                         lineIndexes.add( lineIndx );
@@ -318,8 +281,8 @@ public class MerchantNameExtractionUtil
                 for ( int ngramPos = 0; ngramPos < nGramLength; ngramPos++ ) {
                     if ( pos >= tempList.length ) {
                         pos = 0;
-                        if ( !rev && ( ENABLE_SEQUENTIAL_LOOKUP == true ? i : i / 2 ) + nextLine < lines.size() ) {
-                            int lineIndx = ( ENABLE_SEQUENTIAL_LOOKUP == true ? i : i / 2 ) + nextLine;
+                        if ( !rev && (ENABLE_SEQUENTIAL_LOOKUP ? i : i / 2 ) + nextLine < lines.size() ) {
+                            int lineIndx = (ENABLE_SEQUENTIAL_LOOKUP ? i : i / 2 ) + nextLine;
                             nextLine++;
                             tempList = lines.get( lineIndx );
                             if ( !lineIndexes.contains( lineIndx ) )
@@ -339,7 +302,7 @@ public class MerchantNameExtractionUtil
                     pos++;
                 }
                 if ( completed ) {
-                    String possibleName = merchantNameExtractionUtil.extractPotentialName( nGramVal.toString().trim() );
+                    String possibleName = extractPotentialName( nGramVal.toString().trim() );
                     boolean alreadyExists = false;
                     for ( Integer lineNos : lineIndexes ) {
                         HashSet<String> existenceChk = lineWiseNGrams.get( lineNos );
@@ -357,7 +320,7 @@ public class MerchantNameExtractionUtil
                         if ( rev ) {
                             lineIndx = ( lines.size() - 1 ) - ( i / 2 );
                         } else {
-                            lineIndx = ENABLE_SEQUENTIAL_LOOKUP == true ? i : i / 2;
+                            lineIndx = ENABLE_SEQUENTIAL_LOOKUP ? i : i / 2;
                         }
 
                         ngram.setLineIndex( lineIndx );
@@ -379,7 +342,7 @@ public class MerchantNameExtractionUtil
     }
 
 
-    public  int countLetters( String str )
+    private int countLetters(String str)
     {
         int count = 0;
         for ( Character c : str.toCharArray() ) {
@@ -391,7 +354,7 @@ public class MerchantNameExtractionUtil
     }
 
 
-    public static List<String> lowercase(List<String> originalList )
+    private static List<String> lowercase(List<String> originalList)
     {
         List<String> lowercaseList = new ArrayList<>();
         for ( String str : originalList ) {
@@ -410,7 +373,7 @@ public class MerchantNameExtractionUtil
      * @param stopIndex  Stop index to combine until (inclusive)
      * @return Combined string
      */
-    public String mkString(String[] strParts, String separator, int startIndex, int stopIndex )
+    private String mkString(String[] strParts, String separator, int startIndex, int stopIndex)
     {
         StringBuilder sb = new StringBuilder();
         for ( int i = startIndex; i <= stopIndex; i++ ) {
@@ -422,9 +385,9 @@ public class MerchantNameExtractionUtil
     }
 
 
-    public static String stripExtraCharacters(String value )
+    private static String stripExtraCharacters(String value)
     {
-        if (  value.isEmpty() )
+        if ( value.isEmpty() )
             return value;
         int length = value.length();
         while ( ( value.charAt( length - 1 ) == '-' || value.charAt( length - 1 ) == '/' ) && length > 0 ) {
@@ -440,12 +403,11 @@ public class MerchantNameExtractionUtil
     }
 
 
-    public static double getConfidence(String name, double base, double gVScore )
+    public static double getConfidence( String name, double base, double gVScore )
     {
         double score = base;
-        // TODO need to have a better way to reduce confidence for these merchants
-        if ( name.toLowerCase().contains( "gmail" ) || name.toLowerCase().contains( "google" ) || name.toLowerCase()
-            .contains( "yahoo" ) ) {
+        if ( name.toLowerCase().contains( "gmail" ) || name.toLowerCase().contains( "google" )
+            || name.toLowerCase().contains( "yahoo" ) ) {
             score = .1;
         }
         score = score + ( gVScore / 10 );
@@ -461,7 +423,7 @@ public class MerchantNameExtractionUtil
      * @param line Line to extract the name from
      * @return Potential merchant name in the line
      */
-    public  String extractPotentialName(String line )
+    public String extractPotentialName( String line )
     {
         String[] lineParts = line.split( " " );
         int startIndex = 0;
@@ -487,10 +449,9 @@ public class MerchantNameExtractionUtil
 
     /**
      * Tokenize each string in the list
-     * @param lines
      * @return Tokenized list for string
      */
-    public  List<String[]> tokenizeText(List<String> lines )
+    public List<String[]> tokenizeText( List<String> lines )
     {
         List<String[]> response = new ArrayList<>();
         for ( String line : lines ) {

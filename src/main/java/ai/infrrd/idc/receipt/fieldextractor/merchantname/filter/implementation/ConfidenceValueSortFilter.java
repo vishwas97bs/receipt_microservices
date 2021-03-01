@@ -10,13 +10,15 @@ import org.springframework.stereotype.Component;
 import java.util.Collections;
 import java.util.List;
 
+
 @Component
-public class ConfidenceValueSortFilter implements ExtractionFilter {
+public class ConfidenceValueSortFilter implements ExtractionFilter
+{
     private static final Logger LOG = LoggerFactory.getLogger( ConfidenceValueSortFilter.class );
 
 
     @Override
-    public List<ExtractedValue> filter(List<ExtractedValue> input, FieldExtractionRequest fieldExtractionRequest)
+    public List<ExtractedValue> filter( List<ExtractedValue> input, FieldExtractionRequest fieldExtractionRequest )
     {
         if ( input != null && !input.isEmpty() ) {
             Collections.sort( input, new ConfidenceValueComparator() );
